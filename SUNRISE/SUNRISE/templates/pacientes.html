@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .buscador {
+        position: absolute;
+        top: 160px;
+        right: 50px;
+    }
+    
+    .buscador-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: white;
+        padding: 2px 10px;
+        border-radius: 25px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        border: 2px solid #3498db;
+        transition: all 0.3s ease;
+    }
+    
+    .buscador-container:focus-within {
+        box-shadow: 0px 4px 15px rgba(52, 152, 219, 0.3);
+        border-color: #2980b9;
+    }
+    
+    .buscador input {
+        border: none;
+        outline: none;
+        padding: 8px 12px;
+        font-size: 1rem;
+        background: transparent;
+        width: 200px;
+    }
+    
+    .buscador button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+    
+    .buscador button:hover {
+        background: #f0f8ff;
+        transform: scale(1.1);
+    }
+    
+    .buscador img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .lista-pacientes {
+        margin-top: 60px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: left;
+    }
+    .paciente-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px;
+        background: #deebe5;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+    .paciente-info {
+        flex-grow: 1;
+    }
+    .acciones {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .btn-eliminar {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        transition: all 0.3s;
+    }
+    .btn-eliminar:hover {
+        background-color: #c0392b;
+        transform: scale(1.1);
+        box-shadow: 0px 2px 8px #c0392b(52, 152, 219, 0.3);
+    }
+    .btn-editar {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        text-decoration: none;
+    }
+    .btn-editar:hover {
+        background-color: #2980b9;
+    }
+    .flecha {
+        background-color: #007a57;
+        color: white;
+        border: none;
+        padding: 17px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1.3rem;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 12px;
+        height: 19px;
+        line-height: 1;
+        transition: all 0.3s;
+    }
+    .flecha:hover {
+        background-color: #069467;
+        transform: scale(1.1);
+        box-shadow: 0px 2px 8px #069467(52, 152, 219, 0.3);
+        color: white;
+    }
+
+    .btn-odontograma {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 17px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 19px;
+    transition: all 0.3s;
+}
+
+.btn-odontograma:hover {
+    background-color: #2980b9;
+    transform: scale(1.1);
+    box-shadow: 0px 2px 8px rgba(52, 152, 219, 0.3);
+}
+</style>
+
+<div class="buscador">
+    <form method="get" action="{% url 'pacientes' %}">
+        <div class="buscador-container">
+            <input type="text" name="q" placeholder="Nombre, CI, Teléfono..." value="{{ query }}">
+            <button type="submit">
+                <img src="{% static 'images/lupa.png' %}" alt="Buscar">
+            </button>
+        </div>
+    </form>
+</div>
+
+<h2 style="text-align:center;color:#00986c;">Lista de Pacientes</h2>
+
+<div class="lista-pacientes">
+    {% for paciente in pacientes %}
+    <div class="paciente-item">
+        <div class="paciente-info">
+            <span>{{ paciente.nombre }} {{ paciente.apellido }}</span>
+        </div>
+        <div class="acciones">
+             <!-- Botón Odontograma (Nuevo) -->
+             <a href="{% url 'odontograma' paciente.id %}" class="btn-odontograma" title="Odontograma">
+    <img src="{% static 'images/icon_diente.png' %}" alt="Odontograma" width="20" height="20">
+</a>
+            <!-- Botón Eliminar (ahora con ícono) -->
+            {% load static %}
+
+<form method="post" action="{% url 'eliminar_paciente' paciente.id %}" style="display: inline; margin: 0;">
+    {% csrf_token %}
+    <button type="button" class="btn-eliminar" onclick="mostrarConfirmacionEliminar('{{ paciente.nombre }} {{ paciente.apellido }}', {{ paciente.id }})">
+        <img src="{% static 'images/basurero.png' %}" alt="Eliminar" width="20" height="20">
+    </button>
+</form>
+            
+            <!-- Boton flecha (detalles) -->
+            {% load static %}
+
+<a href="{% url 'paciente_detalle' paciente.id %}" class="flecha">
+    <img src="{% static 'images/icon_paciente.png' %}" alt="Ver detalle" width="20" height="20">
+</a>
+        </div>
+    </div>
+    {% empty %}
+    <p style="text-align:center;">No hay pacientes registrados.</p>
+    {% endfor %}
+</div>
+<div style="height: 60px;"></div>
+
+<script>
+// FUNCIÓN PARA MENSAJE DE CONFIRMACIÓN ELEGANTE
+function mostrarConfirmacionEliminar(nombrePaciente, pacienteId) {
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Crear modal de confirmación
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transform: scale(0.9);
+        animation: scaleIn 0.3s ease forwards;
+        overflow: hidden;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: #3498db; padding: 20px; text-align: center;">
+            <h3 style="margin: 0; color: white; font-size: 1.3rem; font-weight: bold;">
+                Eliminar Paciente
+            </h3>
+        </div>
+        <div style="padding: 25px; text-align: center;">
+            <div style="font-size: 1.1rem; color: #333; line-height: 1.5; margin-bottom: 25px;">
+                ¿Estás seguro de que quieres eliminar a <strong>${nombrePaciente}</strong>?
+                <br><br>
+                <span style="color: #e74c3c; font-size: 0.9rem;">Esta acción no se puede deshacer.</span>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="btnCancelarConfirm" style="
+                    padding: 12px 25px;
+                    background: #95a5a6;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 1rem;
+                    min-width: 100px;
+                " onmouseover="this.style.background='#7f8c8d'" onmouseout="this.style.background='#95a5a6'">
+                    Cancelar
+                </button>
+                <button id="btnAceptarConfirm" style="
+                    padding: 12px 25px;
+                    background: #e74c3c;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 1rem;
+                    min-width: 100px;
+                " onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    // Eventos de los botones
+    document.getElementById('btnAceptarConfirm').addEventListener('click', function() {
+        // Enviar formulario de eliminación
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/eliminar_paciente/${pacienteId}/`;
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    });
+    
+    document.getElementById('btnCancelarConfirm').addEventListener('click', function() {
+        overlay.remove();
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Cerrar al hacer clic fuera del modal
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.remove();
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+// Agregar animaciones CSS
+if (!document.querySelector('#animaciones-custom')) {
+    const style = document.createElement('style');
+    style.id = 'animaciones-custom';
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+</script>
+{% endblock %}

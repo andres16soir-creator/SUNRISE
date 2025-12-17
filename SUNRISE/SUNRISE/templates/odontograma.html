@@ -1,0 +1,2471 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .odontograma-container {
+        max-width: 1400px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    } 
+    
+    .header-odontograma {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #007a57;
+    }
+    
+    .titulo-odontograma {
+        color: #007a57;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .paciente-info {
+        background: #f8fdfb;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        border-left: 4px solid #0774abff;
+    }
+    
+    .paciente-nombre {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: #0774abff;
+        margin-bottom: 10px;
+        text-align: left;
+    }
+    
+    /* Estilos del odontograma */
+    .odontograma-grid {
+        display: grid;
+        grid-template-columns: repeat(16, 1fr);
+        gap: 10px;
+        margin: 30px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        justify-items: center;
+    }
+    
+    .tooth-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    
+    /* Botón para la foto del diente */
+    .tooth-button {
+        width: 60px;
+        height: 90px;
+        background-color: #07AB78;
+        border: none;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .tooth-button:hover {
+        background-color: #e38136ff;
+        transform: scale(1.10);
+        box-shadow: 0px 4px 8px rgba(7, 171, 120, 0.4);
+    }
+    
+    .tooth-button-bottom {
+        width: 60px;
+        height: 90px;
+        background-color: #07AB78;
+        border: none;
+        border-radius: 5px;
+        margin-top: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .tooth-button-bottom:hover {
+        background-color: #e38136ff;
+        transform: scale(1.10);
+        box-shadow: 0px 4px 8px rgba(7, 171, 120, 0.4);
+    }
+    
+    .tooth-button img,
+    .tooth-button-bottom img {
+        width: 40px;
+        height: 80px;
+        object-fit: contain;
+    }
+    
+    .tooth {
+        display: grid;
+        grid-template-columns: repeat(3, 10px);
+        grid-template-rows: repeat(3, 10px);
+        gap: 1px;
+        background: linear-gradient(135deg, #e3e2e2ff, #e3e2e2ff);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 4px;
+        border: 2px solid #ccc;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        position: relative;
+    }
+    
+    .tooth:hover {
+        transform: scale(2.05);
+        border-color: #007a57;
+        box-shadow: 0 4px 8px rgba(7, 171, 120, 0.3);
+    }
+    
+    .tooth div {
+        width: 10px;
+        height: 10px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 2px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .tooth div:hover {
+        background: #f0f9f5;
+        border-color: #007a57;
+    }
+    
+    /* Estilos para las herramientas */
+    /* Estilos para iconos de herramientas */
+.icono-herramienta {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* Reemplazar símbolos de texto por imágenes en las casillas */
+.tooth.ausente::before {
+    content: "";
+    background: url('/static/images/diente_ausente.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.extraer::before {
+    content: "";
+    background: url('/static/images/diente_a_extraer.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.corona::before {
+    content: "";
+    background: url('/static/images/corona.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.tramo::before {
+    content: "";
+    background: url('/static/images/tramo.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.protesis::before {
+    content: "";
+    background: url('/static/images/protesis.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+
+
+/* NUEVOS ESTILOS PARA LAS NUEVAS HERRAMIENTAS */
+.tooth.extraido::before {
+    content: "";
+    background: url('/static/images/diente_extraido.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.obturacion_buena::before {
+    content: "";
+    background: url('/static/images/obturacion_buena.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.obturacion_mala::before {
+    content: "";
+    background: url('/static/images/obturacion_mala.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.sellante_indicado::before {
+    content: "";
+    background: url('/static/images/sellante_indicado.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.sellante_realizado::before {
+    content: "";
+    background: url('/static/images/sellante_realizado.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.endodoncia_indicada::before {
+    content: "";
+    background: url('/static/images/endodoncia_indicada.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.endodoncia_realizada::before {
+    content: "";
+    background: url('/static/images/endodoncia_realizada.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.sano::before {
+    content: "";
+    background: url('/static/images/diente_sano.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.protesis_fija_buena::before {
+    content: "";
+    background: url('/static/images/protesis_fija_buena.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.protesis_fija_mala::before {
+    content: "";
+    background: url('/static/images/protesis_fija_mala.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.fractura_corona::before {
+    content: "";
+    background: url('/static/images/fractura_corona.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.ortodontico::before {
+    content: "";
+    background: url('/static/images/ortodontico.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.hipersensibilidad::before {
+    content: "";
+    background: url('/static/images/hipersensibilidad.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.implante::before {
+    content: "";
+    background: url('/static/images/implante.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.diastema::before {
+    content: "";
+    background: url('/static/images/diastema.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.abrasion::before {
+    content: "";
+    background: url('/static/images/abrasion_erosion.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.atriccion::before {
+    content: "";
+    background: url('/static/images/atriccion_abfraccion.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+
+.tooth.erosion::before {
+    content: "";
+    background: url('/static/images/erosion.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+
+
+
+
+
+/* NUEVOS ESTILOS PARA LAS NUEVAS HERRAMIENTAS */
+.tooth.desgaste_coronario::before {
+    content: "";
+    background: url('/static/images/desgaste_coronario.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.sangrado_periodontal::before {
+    content: "";
+    background: url('/static/images/sangrado_periodontal.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.giroversion::before {
+    content: "";
+    background: url('/static/images/giroversion.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.corona_buen_estado::before {
+    content: "";
+    background: url('/static/images/corona_buen_estado.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.corona_mal_estado::before {
+    content: "";
+    background: url('/static/images/corona_mal_estado.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.pulpotomia::before {
+    content: "";
+    background: url('/static/images/pulpotomia.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.pulpectomia::before {
+    content: "";
+    background: url('/static/images/pulpectomia.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.tooth.lesiones_no_cariosas::before {
+    content: "";
+    background: url('/static/images/lesiones_no_cariosas.png') center/contain no-repeat;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    z-index: 10;
+    pointer-events: none;
+}
+
+
+
+
+
+
+
+/* Para caries y obturaciones en secciones específicas */
+.tooth div.active.caries {
+    background: url('/static/images/caries.png') center/contain no-repeat, #3498db !important;
+    z-index: 2;
+}
+
+.tooth div.active.obturacion {
+    background: url('/static/images/obturacion.png') center/contain no-repeat, #e74c3c !important;
+    z-index: 2;
+}
+    
+    /* HERRAMIENTAS E INSTRUCCIONES */
+    .herramientas-instrucciones {
+        background: #f8fdfb;
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border: 2px solid #007a57;
+        text-align: center;
+    }
+    
+    .herramientas-titulo {
+        color: #007a57;
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    
+    .herramientas-grid {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(5, auto);
+        gap: 5px;
+        margin-bottom: 15px;
+    }
+    
+    .btn-herramienta {
+        padding: 10px 4px;
+        border: 2px solid #007a57;
+        background: white;
+        color: #007a57;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        text-align: center;
+        font-size: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        min-height: 50px;
+        min-width: 0; /* Permite que se ajusten */
+        overflow: hidden; /* Evita desbordamiento */
+        word-wrap: break-word; /* Rompe palabras largas */
+    }
+    
+    .btn-herramienta.active {
+        background: #6bd8e9ff;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px #6bd8e9ff(7, 171, 120, 0.4);
+    }
+    
+    .btn-herramienta:hover {
+        background: #6bd8e9ff;
+        color: white;
+        transform: translateY(-1px);
+    }
+    
+    .simbolo-herramienta {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+    
+    .acciones {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-guardar {
+        background: #007a57;
+        color: white;
+        padding: 15px 35px;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1.1rem;
+    }
+    
+    .btn-guardar:hover {
+        background: #069467;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(7, 171, 120, 0.4);
+    }
+    
+    .btn-cancelar {
+        background: #e74c3c;
+        color: white;
+        padding: 15px 35px;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1.1rem;
+    }
+    
+    .btn-cancelar:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+    }
+    
+    .btn-volver {
+        background: #3498db;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s;
+        font-size: 1.1rem;
+    }
+    
+    .btn-volver:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        color: white;
+    }
+
+     .btn-revertir {
+        background: #e74c3c !important;
+        color: white !important;
+        padding: 15px 30px !important;
+        border: none !important;
+        border-radius: 10px !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        transition: all 0.3s !important;
+        font-size: 1.1rem !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        text-decoration: none !important;
+        font-family: inherit !important;
+    }
+
+    .btn-revertir:hover {
+        background: #c0392b !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4) !important;
+        color: white !important;
+        text-decoration: none !important;
+    }
+
+    .btn-revertir:disabled {
+        background: #95a5a6 !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .btn-revertir:disabled:hover {
+        background: #95a5a6 !important;
+        transform: none !important;
+        box-shadow: none !important;
+        cursor: not-allowed !important;
+    }
+
+    /* Modal para información del diente */
+    .modal-diente {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        animation: fadeIn 0.3s;
+    }
+    
+    .modal-contenido-diente {
+        position: relative;
+        background: white;
+        margin: 5% auto;
+        padding: 0;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        overflow: hidden;
+    }
+    
+    .modal-header-diente {
+        background: #07AB78;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .modal-titulo-diente {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .modal-body-diente {
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .botones-diente {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 25px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-nueva-accion {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1rem;
+        min-width: 140px;
+    }
+    
+    .btn-nueva-accion:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+    
+    .btn-acciones {
+        background: #f39c12;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1rem;
+        min-width: 140px;
+    }
+    
+    .btn-acciones:hover {
+        background: #e67e22;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+    }
+    
+    .cerrar-modal-diente {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        background: rgba(255,255,255,0.2);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+    }
+    
+    .cerrar-modal-diente:hover {
+        background: rgba(255,255,255,0.3);
+    }
+
+    /* Mensajes de Django */
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        padding: 12px 20px;
+        border-radius: 8px;
+        border: 1px solid #c3e6cb;
+        margin-bottom: 20px;
+    }
+
+    /* NUEVOS ESTILOS PARA TOOLTIP DE ACCIONES */
+    .tooltip-acciones {
+        background: rgba(255, 255, 255, 0.98);
+        border: 2px solid #07AB78;
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        max-width: 280px;
+        font-family: Arial, sans-serif;
+        backdrop-filter: blur(10px);
+        z-index: 10000;
+        position: fixed;
+        pointer-events: none;
+    }
+
+    .tooltip-header {
+        font-weight: bold;
+        color: #07AB78;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 5px;
+    }
+
+    .tooltip-lista {
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+    .tooltip-item {
+        font-size: 0.8rem;
+        color: #333;
+        margin-bottom: 4px;
+        padding: 3px 0;
+        line-height: 1.3;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .tooltip-item:last-child {
+        margin-bottom: 0;
+        border-bottom: none;
+    }
+
+    .sin-acciones {
+        color: #999;
+        font-style: italic;
+        font-size: 0.8rem;
+        text-align: center;
+        padding: 10px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .herramientas-grid {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        
+        .btn-herramienta {
+            padding: 8px 6px;
+            font-size: 0.8rem;
+            min-height: 55px;
+        }
+        
+        .simbolo-herramienta {
+            font-size: 1rem;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .odontograma-grid {
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
+        }
+        
+        .tooth {
+            transform: scale(0.9);
+        }
+        
+        .herramientas-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .btn-herramienta {
+            padding: 10px 8px;
+            font-size: 0.8rem;
+        }
+        
+        .odontograma-container {
+            padding: 20px;
+        }
+        
+        .botones-diente {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn-nueva-accion,
+        .btn-acciones {
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .tooltip-acciones {
+            max-width: 200px;
+            font-size: 0.7rem;
+        }
+
+        /* ESTILOS DEBUG TEMPORALES PARA TOOLTIP */
+.tooltip-acciones {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 3px solid #ff0000 !important; /* Borde rojo para debug */
+    border-radius: 8px !important;
+    padding: 15px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25) !important;
+    max-width: 280px !important;
+    font-family: Arial, sans-serif !important;
+    backdrop-filter: blur(10px) !important;
+    z-index: 10000 !important;
+    position: fixed !important;
+    pointer-events: none !important;
+    color: #000000 !important;
+    font-size: 14px !important;
+}
+
+.tooltip-header {
+    font-weight: bold !important;
+    color: #07AB78 !important;
+    margin-bottom: 8px !important;
+    font-size: 0.9rem !important;
+    border-bottom: 2px solid #07AB78 !important;
+    padding-bottom: 5px !important;
+}
+
+.tooltip-lista {
+    max-height: 150px !important;
+    overflow-y: auto !important;
+}
+
+.tooltip-item {
+    font-size: 0.8rem !important;
+    color: #333 !important;
+    margin-bottom: 4px !important;
+    padding: 3px 0 !important;
+    line-height: 1.3 !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.tooltip-item:last-child {
+    margin-bottom: 0 !important;
+    border-bottom: none !important;
+}
+    }
+</style>
+
+<!-- AGREGAR TOKEN CSRF MANUALMENTE -->
+{% csrf_token %}
+
+<div class="odontograma-container">
+    <div class="header-odontograma">
+        <h1 class="titulo-odontograma">ODONTOGRAMA INTERACTIVO</h1>
+    </div>
+    
+    <!-- Mostrar mensajes de Django -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="paciente-info">
+        <div class="paciente-nombre">{{ paciente.nombre }} {{ paciente.apellido }}</div>
+    </div>
+
+    <!-- HERRAMIENTAS E INSTRUCCIONES UNIFICADAS -->
+    <div class="herramientas-instrucciones">
+        <div class="herramientas-titulo">HERRAMIENTAS</div>
+        
+        <div class="herramientas-grid">
+    <!-- ========== ESTADO GENERAL DEL DIENTE ========== -->
+    
+    <button class="btn-herramienta" data-tool="ausente">
+        <img src="/static/images/diente_ausente.png" alt="Ausente" class="icono-herramienta">
+        Ausente
+    </button>
+    <button class="btn-herramienta" data-tool="extraer">
+        <img src="/static/images/diente_a_extraer.png" alt="Extraer" class="icono-herramienta">
+        A Extraer
+    </button>
+    <button class="btn-herramienta" data-tool="extraido">
+        <img src="/static/images/diente_extraido.png" alt="Extraído" class="icono-herramienta">
+        Extraído
+    </button>
+
+    <!-- ========== PATOLOGÍAS PRIMARIAS ========== -->
+    <button class="btn-herramienta" data-tool="caries">
+        <img src="/static/images/caries.png" alt="Caries" class="icono-herramienta">
+        Caries
+    </button>
+    <button class="btn-herramienta" data-tool="fractura_corona">
+        <img src="/static/images/fractura_corona.png" alt="Fractura Corona" class="icono-herramienta">
+        Fractura Corona
+    </button>
+    <button class="btn-herramienta" data-tool="hipersensibilidad">
+        <img src="/static/images/hipersensibilidad.png" alt="Hipersensibilidad" class="icono-herramienta">
+        Hipersensibilidad
+    </button>
+    <button class="btn-herramienta" data-tool="diastema">
+        <img src="/static/images/diastema.png" alt="Diastema" class="icono-herramienta">
+        Diastema
+    </button>
+
+    <!-- ========== OBTURACIONES/RESTAURACIONES ========== -->
+    <button class="btn-herramienta" data-tool="obturacion">
+        <img src="/static/images/obturacion.png" alt="Obturación" class="icono-herramienta">
+        Obturación
+    </button>
+    <button class="btn-herramienta" data-tool="obturacion_buena">
+        <img src="/static/images/obturacion_buena.png" alt="Obturación Buena" class="icono-herramienta">
+        Obt. Buena
+    </button>
+    <button class="btn-herramienta" data-tool="obturacion_mala">
+        <img src="/static/images/obturacion_mala.png" alt="Obturación Mala" class="icono-herramienta">
+        Obt. Mala
+    </button>
+
+    <!-- ========== TRATAMIENTOS PREVENTIVOS ========== -->
+    <button class="btn-herramienta" data-tool="sellante_indicado">
+        <img src="/static/images/sellante_indicado.png" alt="Sellante Indicado" class="icono-herramienta">
+        Sell. Indicado
+    </button>
+    <button class="btn-herramienta" data-tool="sellante_realizado">
+        <img src="/static/images/sellante_realizado.png" alt="Sellante Realizado" class="icono-herramienta">
+        Sell. Realizado
+    </button>
+
+    <!-- ========== ENDODONCIA ========== -->
+    <button class="btn-herramienta" data-tool="endodoncia_indicada">
+        <img src="/static/images/endodoncia_indicada.png" alt="Endodoncia Indicada" class="icono-herramienta">
+        Endod. Indicada
+    </button>
+    <button class="btn-herramienta" data-tool="endodoncia_realizada">
+        <img src="/static/images/endodoncia_realizada.png" alt="Endodoncia Realizada" class="icono-herramienta">
+        Endod. Realizada
+    </button>
+
+    <!-- ========== PROTESIS ========== -->
+    <button class="btn-herramienta" data-tool="protesis">
+        <img src="/static/images/protesis.png" alt="Prótesis" class="icono-herramienta">
+        Prótesis
+    </button>
+    <button class="btn-herramienta" data-tool="protesis_fija_buena">
+        <img src="/static/images/protesis_fija_buena.png" alt="Prótesis Fija Buena" class="icono-herramienta">
+        Prot. Fija Buena
+    </button>
+    <button class="btn-herramienta" data-tool="protesis_fija_mala">
+        <img src="/static/images/protesis_fija_mala.png" alt="Prótesis Fija Mala" class="icono-herramienta">
+        Prot. Fija Mala
+    </button>
+
+    <!-- ========== CORONAS ========== -->
+    <button class="btn-herramienta" data-tool="tramo">
+        <img src="/static/images/tramo.png" alt="Tramo" class="icono-herramienta">
+        Tramo
+    </button>
+
+    <!-- ========== TRATAMIENTOS ESPECIALIZADOS ========== -->
+    <button class="btn-herramienta" data-tool="ortodontico">
+        <img src="/static/images/ortodontico.png" alt="Tratamiento Ortodóntico" class="icono-herramienta">
+        Ortodoncia
+    </button>
+    <button class="btn-herramienta" data-tool="implante">
+        <img src="/static/images/implante.png" alt="Implante" class="icono-herramienta">
+        Implante
+    </button>
+
+    <!-- ========== DESGASTES DENTALES ========== -->
+    <button class="btn-herramienta" data-tool="abrasion">
+        <img src="/static/images/abrasion_erosion.png" alt="abrasión" class="icono-herramienta">
+        Abrasión
+    </button>
+    <button class="btn-herramienta" data-tool="atriccion">
+        <img src="/static/images/atriccion_abfraccion.png" alt="atriccion" class="icono-herramienta">
+        Atricción
+    </button>
+    <button class="btn-herramienta" data-tool="erosion">
+        <img src="/static/images/erosion.png" alt="erosion" class="icono-herramienta">
+        Erosión
+    </button>
+
+    <!-- ========== NUEVAS HERRAMIENTAS AGREGAR ========== -->
+
+<!-- Desgaste Coronario -->
+<button class="btn-herramienta" data-tool="desgaste_coronario">
+    <img src="/static/images/desgaste_coronario.png" alt="Desgaste Coronario" class="icono-herramienta">
+    Desgaste Coronario
+</button>
+
+<!-- Sangrado Periodontal -->
+<button class="btn-herramienta" data-tool="sangrado_periodontal">
+    <img src="/static/images/sangrado_periodontal.png" alt="Sangrado Periodontal" class="icono-herramienta">
+    Sangrado Period.
+</button>
+
+<!-- Giroversión -->
+<button class="btn-herramienta" data-tool="giroversion">
+    <img src="/static/images/giroversion.png" alt="Giroversión" class="icono-herramienta">
+    Giroversión
+</button>
+
+<!-- Corona Buen Estado -->
+<button class="btn-herramienta" data-tool="corona_buen_estado">
+    <img src="/static/images/corona_buen_estado.png" alt="Corona Buen Estado" class="icono-herramienta">
+    Corona Buena
+</button>
+
+<!-- Corona Mal Estado -->
+<button class="btn-herramienta" data-tool="corona_mal_estado">
+    <img src="/static/images/corona_mal_estado.png" alt="Corona Mal Estado" class="icono-herramienta">
+    Corona Mala
+</button>
+
+<!-- Pulpotomía -->
+<button class="btn-herramienta" data-tool="pulpotomia">
+    <img src="/static/images/pulpotomia.png" alt="Pulpotomía" class="icono-herramienta">
+    Pulpotomía
+</button>
+
+<!-- Pulpectomía -->
+<button class="btn-herramienta" data-tool="pulpectomia">
+    <img src="/static/images/pulpectomia.png" alt="Pulpectomía" class="icono-herramienta">
+    Pulpectomía
+</button>
+
+<!-- Lesiones No Cariosas -->
+<button class="btn-herramienta" data-tool="lesiones_no_cariosas">
+    <img src="/static/images/lesiones_no_cariosas.png" alt="Lesiones No Cariosas" class="icono-herramienta">
+    Lesiones No Cariosas
+</button>
+
+    <button class="btn-herramienta" data-tool="sano">
+        <img src="/static/images/diente_sano.png" alt="Diente Sano" class="icono-herramienta">
+        Diente Sano
+    </button>
+
+    <!-- ========== HERRAMIENTA DE ELIMINACIÓN ========== -->
+    <button class="btn-herramienta" data-tool="eliminar">
+        <img src="/static/images/eliminar.png" alt="Eliminar" class="icono-herramienta">
+        Eliminar
+    </button>
+</div>
+        
+        <div style="color: #000000ff; font-size: 0.95rem; margin-top: 15px;">
+            <strong>INSTRUCCIONES</strong>
+        </div>
+        <div style="color: #667; font-size: 0.95rem; margin-top: 15px;">
+            <strong>CASILLAS:</strong> Selecciona la herramienta que necesites y marcalo en la casilla del diente correspondiente.
+        </div>
+        <div style="color: #667; font-size: 0.95rem; margin-top: 15px;">
+            <strong>DIENTES:</strong> Selecciona un diente y agrega una nueva accion o mira las que ya registraste.
+        </div>
+        <div style="color: #667; font-size: 0.95rem; margin-top: 15px;">
+            <strong>VISTA PREVIA:</strong> Pasa el cursor sobre cualquier diente para ver las acciones registradas.
+        </div>
+    </div>
+
+    <!-- ODONTOGRAMA COMPLETO CON TODOS LOS DIENTES -->
+    <div class="odontograma-grid" id="odontograma">
+        <!-- Fila 1: 18-11, 21-28 (16 dientes) - Botones ARRIBA -->
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(18)">
+                <img src="{% static 'images/18.png' %}" alt="Diente 18">
+            </button>
+            <div class="tooth" data-tooth="18"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">18</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(17)">
+                <img src="{% static 'images/17.png' %}" alt="Diente 17">
+            </button>
+            <div class="tooth" data-tooth="17"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">17</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(16)">
+                <img src="{% static 'images/16.png' %}" alt="Diente 16">
+            </button>
+            <div class="tooth" data-tooth="16"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">16</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(15)">
+                <img src="{% static 'images/15.png' %}" alt="Diente 15">
+            </button>
+            <div class="tooth" data-tooth="15"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">15</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(14)">
+                <img src="{% static 'images/14.png' %}" alt="Diente 14">
+            </button>
+            <div class="tooth" data-tooth="14"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">14</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(13)">
+                <img src="{% static 'images/13.png' %}" alt="Diente 13">
+            </button>
+            <div class="tooth" data-tooth="13"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">13</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(12)">
+                <img src="{% static 'images/12.png' %}" alt="Diente 12">
+            </button>
+            <div class="tooth" data-tooth="12"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">12</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(11)">
+                <img src="{% static 'images/11.png' %}" alt="Diente 11">
+            </button>
+            <div class="tooth" data-tooth="11"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">11</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(21)">
+                <img src="{% static 'images/21.png' %}" alt="Diente 21">
+            </button>
+            <div class="tooth" data-tooth="21"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">21</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(22)">
+                <img src="{% static 'images/22.png' %}" alt="Diente 22">
+            </button>
+            <div class="tooth" data-tooth="22"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">22</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(23)">
+                <img src="{% static 'images/23.png' %}" alt="Diente 23">
+            </button>
+            <div class="tooth" data-tooth="23"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">23</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(24)">
+                <img src="{% static 'images/24.png' %}" alt="Diente 24">
+            </button>
+            <div class="tooth" data-tooth="24"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">24</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(25)">
+                <img src="{% static 'images/25.png' %}" alt="Diente 25">
+            </button>
+            <div class="tooth" data-tooth="25"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">25</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(26)">
+                <img src="{% static 'images/26.png' %}" alt="Diente 26">
+            </button>
+            <div class="tooth" data-tooth="26"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">26</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(27)">
+                <img src="{% static 'images/27.png' %}" alt="Diente 27">
+            </button>
+            <div class="tooth" data-tooth="27"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">27</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(28)">
+                <img src="{% static 'images/28.png' %}" alt="Diente 28">
+            </button>
+            <div class="tooth" data-tooth="28"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">28</div>
+        </div>
+
+        <!-- Fila 2: 55-51, 61-65 (10 dientes) - Botones ARRIBA - CENTRADOS -->
+        <div class="empty-space"></div>
+        <div class="empty-space"></div>
+        <div class="empty-space"></div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(55)">
+                <img src="{% static 'images/17.png' %}" alt="Diente 55">
+            </button>
+            <div class="tooth" data-tooth="55"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">55</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(54)">
+                <img src="{% static 'images/16.png' %}" alt="Diente 54">
+            </button>
+            <div class="tooth" data-tooth="54"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">54</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(53)">
+                <img src="{% static 'images/13.png' %}" alt="Diente 53">
+            </button>
+            <div class="tooth" data-tooth="53"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">53</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(52)">
+                <img src="{% static 'images/12.png' %}" alt="Diente 52">
+            </button>
+            <div class="tooth" data-tooth="52"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">52</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(51)">
+                <img src="{% static 'images/11.png' %}" alt="Diente 51">
+            </button>
+            <div class="tooth" data-tooth="51"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">51</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(61)">
+                <img src="{% static 'images/21.png' %}" alt="Diente 61">
+            </button>
+            <div class="tooth" data-tooth="61"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">61</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(62)">
+                <img src="{% static 'images/22.png' %}" alt="Diente 62">
+            </button>
+            <div class="tooth" data-tooth="62"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">62</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(63)">
+                <img src="{% static 'images/23.png' %}" alt="Diente 63">
+            </button>
+            <div class="tooth" data-tooth="63"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">63</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(64)">
+                <img src="{% static 'images/26.png' %}" alt="Diente 64">
+            </button>
+            <div class="tooth" data-tooth="64"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">64</div>
+        </div>
+        
+        <div class="tooth-container">
+            <button class="tooth-button" onclick="abrirModalDiente(65)">
+                <img src="{% static 'images/27.png' %}" alt="Diente 65">
+            </button>
+            <div class="tooth" data-tooth="65"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <div class="tooth-label">65</div>
+        </div>
+        
+        <div class="empty-space"></div>
+        <div class="empty-space"></div>
+        <div class="empty-space"></div>
+
+        <!-- Fila 3: 85-81, 71-75 (10 dientes) - Botones ABAJO - CENTRADOS -->
+        <div class="empty-space"></div>
+        <div class="empty-space"></div>
+        <div class="empty-space"></div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">85</div>
+            <div class="tooth" data-tooth="85"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(85)">
+                <img src="{% static 'images/47.png' %}" alt="Diente 85">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">84</div>
+            <div class="tooth" data-tooth="84"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(84)">
+                <img src="{% static 'images/46.png' %}" alt="Diente 84">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">83</div>
+            <div class="tooth" data-tooth="83"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(83)">
+                <img src="{% static 'images/43.png' %}" alt="Diente 83">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">82</div>
+            <div class="tooth" data-tooth="82"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(82)">
+                <img src="{% static 'images/42.png' %}" alt="Diente 82">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">81</div>
+            <div class="tooth" data-tooth="81"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(81)">
+                <img src="{% static 'images/41.png' %}" alt="Diente 81">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">71</div>
+            <div class="tooth" data-tooth="71"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(71)">
+                <img src="{% static 'images/31.png' %}" alt="Diente 71">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">72</div>
+            <div class="tooth" data-tooth="72"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(72)">
+                <img src="{% static 'images/32.png' %}" alt="Diente 72">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">73</div>
+            <div class="tooth" data-tooth="73"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(73)">
+                <img src="{% static 'images/33.png' %}" alt="Diente 73">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">74</div>
+            <div class="tooth" data-tooth="74"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(74)">
+                <img src="{% static 'images/36.png' %}" alt="Diente 74">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">75</div>
+            <div class="tooth" data-tooth="75"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(75)">
+                <img src="{% static 'images/37.png' %}" alt="Diente 75">
+            </button>
+        </div>
+        
+        <div class="empty-space"></div>
+        <div class="empty-space"></div>
+        <div class="empty-space"></div>
+
+        <!-- Fila 4: 48-41, 31-38 (16 dientes) - Botones ABAJO -->
+        <div class="tooth-container">
+            <div class="tooth-label">48</div>
+            <div class="tooth" data-tooth="48"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(48)">
+                <img src="{% static 'images/48.png' %}" alt="Diente 48">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">47</div>
+            <div class="tooth" data-tooth="47"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(47)">
+                <img src="{% static 'images/47.png' %}" alt="Diente 47">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">46</div>
+            <div class="tooth" data-tooth="46"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(46)">
+                <img src="{% static 'images/46.png' %}" alt="Diente 46">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">45</div>
+            <div class="tooth" data-tooth="45"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(45)">
+                <img src="{% static 'images/45.png' %}" alt="Diente 45">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">44</div>
+            <div class="tooth" data-tooth="44"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(44)">
+                <img src="{% static 'images/44.png' %}" alt="Diente 44">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">43</div>
+            <div class="tooth" data-tooth="43"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(43)">
+                <img src="{% static 'images/43.png' %}" alt="Diente 43">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">42</div>
+            <div class="tooth" data-tooth="42"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(42)">
+                <img src="{% static 'images/42.png' %}" alt="Diente 42">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">41</div>
+            <div class="tooth" data-tooth="41"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(41)">
+                <img src="{% static 'images/41.png' %}" alt="Diente 41">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">31</div>
+            <div class="tooth" data-tooth="31"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(31)">
+                <img src="{% static 'images/31.png' %}" alt="Diente 31">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">32</div>
+            <div class="tooth" data-tooth="32"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(32)">
+                <img src="{% static 'images/32.png' %}" alt="Diente 32">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">33</div>
+            <div class="tooth" data-tooth="33"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(33)">
+                <img src="{% static 'images/33.png' %}" alt="Diente 33">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">34</div>
+            <div class="tooth" data-tooth="34"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(34)">
+                <img src="{% static 'images/34.png' %}" alt="Diente 34">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">35</div>
+            <div class="tooth" data-tooth="35"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(35)">
+                <img src="{% static 'images/35.png' %}" alt="Diente 35">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">36</div>
+            <div class="tooth" data-tooth="36"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(36)">
+                <img src="{% static 'images/36.png' %}" alt="Diente 36">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">37</div>
+            <div class="tooth" data-tooth="37"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(37)">
+                <img src="{% static 'images/37.png' %}" alt="Diente 37">
+            </button>
+        </div>
+        
+        <div class="tooth-container">
+            <div class="tooth-label">38</div>
+            <div class="tooth" data-tooth="38"><div data-section="1"></div><div data-section="2"></div><div data-section="3"></div><div data-section="4"></div><div data-section="5"></div><div data-section="6"></div><div data-section="7"></div><div data-section="8"></div><div data-section="9"></div></div>
+            <button class="tooth-button-bottom" onclick="abrirModalDiente(38)">
+                <img src="{% static 'images/38.png' %}" alt="Diente 38">
+            </button>
+        </div>
+    </div>
+
+    <div class="acciones">
+    <button class="btn-revertir" onclick="revertirUltimaAccion()">
+        <i class="fas fa-undo"></i> Revertir (Ctrl+Z)
+    </button>
+    <a href="{% url 'pacientes' %}" class="btn-volver">← Volver a Pacientes</a>
+</div>
+
+<!-- Modal para información del diente -->
+<div id="modalDiente" class="modal-diente">
+    <div class="modal-contenido-diente">
+        <div class="modal-header-diente">
+            <span class="cerrar-modal-diente" onclick="cerrarModalDiente()">&times;</span>
+            <h2 class="modal-titulo-diente" id="tituloModalDiente">INFORMACIÓN DEL DIENTE #</h2>
+        </div>
+        <div class="modal-body-diente">
+            <p>Selecciona una acción para este diente:</p>
+            <div class="botones-diente">
+                <button class="btn-nueva-accion" onclick="nuevaAccion()">Nueva Acción</button>
+                <button class="btn-acciones" onclick="verAcciones()">Acciones</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let herramientaActual = null;
+    let dienteSeleccionado = null;
+    
+    // INICIALIZAR CON DATOS EXISTENTES DEL PACIENTE
+    const datosOdontograma = {{ datos_odontograma_json|safe }} || {};
+
+    // ========== NUEVAS VARIABLES PARA HISTORIAL ==========
+    let historialAcciones = [];
+    let indiceHistorial = -1;
+
+    // ========== SECCIÓN CORREGIDA: CARGAR ACCIONES ==========
+    console.log("🔍 INICIANDO CARGA DE ACCIONES...");
+    
+    let accionesPorDiente = {};
+    try {
+        const rawJson = '{{ acciones_por_diente_json|escapejs }}';
+        console.log("🔍 JSON crudo de Django:", rawJson);
+        
+        if (rawJson && rawJson.trim() !== '' && rawJson !== 'null' && rawJson !== '{}') {
+            accionesPorDiente = JSON.parse(rawJson);
+            console.log("✅ ACCIONES CARGADAS CORRECTAMENTE:", accionesPorDiente);
+        } else {
+            console.warn("⚠️ JSON vacío o inválido recibido de Django");
+            accionesPorDiente = {};
+        }
+    } catch (error) {
+        console.error("❌ ERROR parsing JSON:", error);
+        accionesPorDiente = {};
+    }
+
+    // Mostrar resumen de acciones cargadas
+    console.log(`🔍 RESUMEN: ${Object.keys(accionesPorDiente).length} dientes con acciones`);
+    Object.keys(accionesPorDiente).forEach(diente => {
+        console.log(`   - Diente ${diente}: ${accionesPorDiente[diente].length} acciones`);
+    });
+
+    // ========== FUNCIONES DE TOOLTIP (DEFINIR PRIMERO) ==========
+    function mostrarTooltipAcciones(event, numeroDiente) {
+    console.log(`🔍 Solicitando tooltip para diente: ${numeroDiente}`);
+    
+    // Verificar si el diente tiene acciones
+    if (!accionesPorDiente.hasOwnProperty(numeroDiente)) {
+        console.log(`❌ Diente ${numeroDiente} no encontrado en accionesPorDiente`);
+        return;
+    }
+    
+    const acciones = accionesPorDiente[numeroDiente];
+    console.log(`🔍 Acciones para diente ${numeroDiente}:`, acciones);
+    
+    if (!acciones || acciones.length === 0) {
+        console.log(`ℹ️ No hay acciones para diente ${numeroDiente}`);
+        return;
+    }
+    
+    // Eliminar tooltip existente si hay uno
+    if (event.currentTarget.tooltip) {
+        event.currentTarget.tooltip.remove();
+    }
+    
+    // Crear tooltip con estilos INLINE para asegurar visibilidad
+    const tooltip = document.createElement('div');
+    tooltip.innerHTML = `
+        <div style="
+            background: #FFFFFF;
+            border: 2px solid #07AB78;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-width: 250px;
+            font-family: Arial, sans-serif;
+            color: #000000;
+            font-size: 14px;
+        ">
+            <div style="
+                font-weight: bold;
+                color: #07AB78;
+                margin-bottom: 6px;
+                font-size: 14px;
+                border-bottom: 1px solid #07AB78;
+                padding-bottom: 4px;
+            ">Diente #${numeroDiente}</div>
+            <div style="max-height: 120px; overflow-y: auto;">
+                ${acciones.map(accion => 
+                    `<div style="
+                        font-size: 13px;
+                        color: #333;
+                        margin-bottom: 3px;
+                        padding: 2px 0;
+                        line-height: 1.3;
+                    ">• ${accion}</div>`
+                ).join('')}
+            </div>
+        </div>
+    `;
+    
+    // POSICIONAMIENTO MEJORADO - Cerca del cursor
+    const offsetX = 10;  // Más cerca del cursor
+    const offsetY = 10;  // Más cerca del cursor
+    
+    let x = event.clientX + offsetX;
+    let y = event.clientY + offsetY;
+    
+    // Asegurar que no se salga de la pantalla por la derecha
+    const tooltipWidth = 250;
+    if (x + tooltipWidth > window.innerWidth) {
+        x = event.clientX - tooltipWidth - offsetX;
+    }
+    
+    // Asegurar que no se salga de la pantalla por abajo
+    const tooltipHeight = 150;
+    if (y + tooltipHeight > window.innerHeight) {
+        y = event.clientY - tooltipHeight - offsetY;
+    }
+    
+    // Aplicar posición
+    tooltip.style.position = 'fixed';
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = y + 'px';
+    tooltip.style.zIndex = '99999';
+    
+    // Añadir al body
+    document.body.appendChild(tooltip);
+    
+    console.log(`✅ Tooltip creado para diente ${numeroDiente}`);
+    console.log(`📍 Posición: left=${x}px, top=${y}px (cursor: ${event.clientX}, ${event.clientY})`);
+    
+    // Guardar referencia para eliminarlo después
+    event.currentTarget.tooltip = tooltip;
+}
+
+    function ocultarTooltipAcciones(event) {
+    if (event.currentTarget.tooltip) {
+        console.log(`🗑️ Eliminando tooltip`);
+        event.currentTarget.tooltip.remove();
+        event.currentTarget.tooltip = null;
+    }
+}
+
+    // ========== CONFIGURACIÓN DE EVENTOS ==========
+    function configurarEventosTooltips() {
+        console.log("🔍 Configurando eventos para tooltips...");
+        
+        const elementosDiente = document.querySelectorAll('.tooth, .tooth-button, .tooth-button-bottom, .tooth-label');
+        console.log(`🔍 Elementos de diente encontrados: ${elementosDiente.length}`);
+        
+        elementosDiente.forEach((elemento, index) => {
+            const toothContainer = elemento.closest('.tooth-container');
+            if (toothContainer) {
+                const toothElement = toothContainer.querySelector('.tooth');
+                if (toothElement && toothElement.dataset.tooth) {
+                    const numeroDiente = toothElement.dataset.tooth;
+                    
+                    elemento.addEventListener('mouseenter', function(event) {
+                        console.log(`🖱️ Mouse ENTER en diente ${numeroDiente}`);
+                        mostrarTooltipAcciones(event, numeroDiente);
+                    });
+                    
+                    elemento.addEventListener('mouseleave', function(event) {
+                        console.log(`🖱️ Mouse LEAVE en diente ${numeroDiente}`);
+                        ocultarTooltipAcciones(event);
+                    });
+                    
+                    elemento.addEventListener('mousemove', function(event) {
+    if (this.tooltip) {
+        const offsetX = 10;
+        const offsetY = 10;
+        
+        let x = event.clientX + offsetX;
+        let y = event.clientY + offsetY;
+        
+        // Asegurar que no se salga de la pantalla por la derecha
+        const tooltipWidth = 250;
+        if (x + tooltipWidth > window.innerWidth) {
+            x = event.clientX - tooltipWidth - offsetX;
+        }
+        
+        // Asegurar que no se salga de la pantalla por abajo
+        const tooltipHeight = 150;
+        if (y + tooltipHeight > window.innerHeight) {
+            y = event.clientY - tooltipHeight - offsetY;
+        }
+        
+        this.tooltip.style.left = x + 'px';
+        this.tooltip.style.top = y + 'px';
+    }
+});
+                }
+            }
+        });
+        
+        console.log("✅ Eventos configurados correctamente");
+    }
+
+    // ========== INICIALIZACIÓN ==========
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🚀 DOM cargado, inicializando odontograma...");
+    configurarEventosTooltips();
+    cargarDatosExistentes();
+    actualizarBotonRevertir();
+});
+
+    // ========== RESTA DE TU CÓDIGO EXISTENTE ==========
+    // Inicializar herramientas
+    document.querySelectorAll('.btn-herramienta').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-herramienta').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            herramientaActual = this.dataset.tool;
+        });
+    });
+
+
+
+
+
+
+
+   // Configurar eventos para las celdas de los dientes (SOLO caries/obturacion)-----------------------------------------------------------------------------
+document.querySelectorAll('.tooth div').forEach(cell => {
+    cell.addEventListener('click', function(event) {
+        // SOLO procesar si la herramienta es caries u obturacion
+        if (herramientaActual === 'caries' || herramientaActual === 'obturacion') {
+            event.stopPropagation(); // Evitar que el evento llegue al diente completo
+            const tooth = this.parentElement;
+            const toothNumber = tooth.dataset.tooth;
+            marcarSeccion(tooth, toothNumber, this);
+        }
+    });
+});
+
+// Configurar eventos para ELIMINAR en celdas específicas (solo caries/obturacion)
+document.querySelectorAll('.tooth div').forEach(cell => {
+    cell.addEventListener('click', function(event) {
+        if (herramientaActual === 'eliminar') {
+            // Verificar si esta celda tiene caries u obturacion
+            if (cell.classList.contains('caries') || cell.classList.contains('obturacion')) {
+                event.stopPropagation(); // Evitar que el evento llegue al diente completo
+                const tooth = this.parentElement;
+                const toothNumber = tooth.dataset.tooth;
+                eliminarMarcas(tooth, toothNumber, this);
+            }
+        }
+    });
+});
+
+// Configurar eventos para hacer clic en el diente completo (PARA TODAS LAS HERRAMIENTAS EXCEPTO caries/obturacion en celdas)
+document.querySelectorAll('.tooth').forEach(tooth => {
+    tooth.addEventListener('click', function(event) {
+        const toothNumber = this.dataset.tooth;
+        
+        // Si es ELIMINAR y se hizo clic en el diente completo
+        if (herramientaActual === 'eliminar') {
+            console.log(`🖱️ Clic ELIMINAR en diente completo ${toothNumber}`);
+            eliminarMarcas(this, toothNumber); // Eliminar marca completa
+            return;
+        }
+        
+        // Si es CARIES u OBTURACION, no hacer nada aquí (ya se maneja en las celdas)
+        if (herramientaActual === 'caries' || herramientaActual === 'obturacion') {
+            return;
+        }
+        
+        // Para TODAS LAS DEMÁS HERRAMIENTAS (ausente, extraer, corona, etc.)
+        if (herramientaActual) {
+            console.log(`🖱️ Clic en diente completo ${toothNumber} con herramienta: ${herramientaActual}`);
+            marcarDienteCompleto(this, toothNumber);
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+    // Función para abrir el modal del diente
+    function abrirModalDiente(numeroDiente) {
+        dienteSeleccionado = numeroDiente;
+        const modal = document.getElementById('modalDiente');
+        const titulo = document.getElementById('tituloModalDiente');
+        
+        titulo.textContent = `INFORMACIÓN DEL DIENTE #${numeroDiente}`;
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Función para cerrar el modal del diente
+    function cerrarModalDiente() {
+        const modal = document.getElementById('modalDiente');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        dienteSeleccionado = null;
+    }
+
+    // Función para el botón "Nueva Acción"
+    function nuevaAccion() {
+        if (dienteSeleccionado) {
+            window.location.href = `/paciente/{{ paciente.id }}/diente/${dienteSeleccionado}/nueva-accion/`;
+            cerrarModalDiente();
+        } else {
+            alert("Por favor, selecciona un diente primero");
+        }
+    }
+
+    // Función para el botón "Acciones"
+    function verAcciones() {
+        if (dienteSeleccionado) {
+            window.location.href = `/paciente/{{ paciente.id }}/diente/${dienteSeleccionado}/acciones/`;
+            cerrarModalDiente();
+        } else {
+            alert("Por favor, selecciona un diente primero");
+        }
+    }
+
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(event) {
+        const modal = document.getElementById('modalDiente');
+        if (modal.style.display === 'block' && event.key === 'Escape') {
+            cerrarModalDiente();
+        }
+    });
+
+    // Cerrar modal al hacer clic fuera del contenido
+    document.getElementById('modalDiente').addEventListener('click', function(event) {
+        if (event.target === this) {
+            cerrarModalDiente();
+        }
+    });
+
+    function marcarSeccion(tooth, toothNumber, cell) {
+    // Guardar estado anterior para el historial
+    const datosAnteriores = datosOdontograma[toothNumber] ? 
+        JSON.parse(JSON.stringify(datosOdontograma[toothNumber])) : null;
+    
+    console.log(`🔧 Marcando sección - Diente: ${toothNumber}, Herramienta: ${herramientaActual}, Sección: ${cell.dataset.section}`);
+    console.log(`📊 Datos anteriores:`, datosAnteriores);
+    
+    // VERIFICAR SI HAY UNA MARCA COMPLETA Y LIMPIARLA-----------------------------------------------------------------------------------------------------------
+    const marcasCompletas = [
+    'ausente', 'extraer', 'extraido', 'obturacion_buena', 'obturacion_mala', 
+    'sellante_indicado', 'sellante_realizado', 'endodoncia_indicada', 
+    'endodoncia_realizada', 'sano', 'protesis_fija_buena', 'protesis_fija_mala', 
+    'fractura_corona', 'ortodontico', 'hipersensibilidad', 'implante', 
+    'diastema', 'abrasion', 'atriccion', 'erosion',
+    'tramo', 'protesis',
+    // NUEVAS HERRAMIENTAS
+    'desgaste_coronario', 'sangrado_periodontal', 'giroversion',
+    'corona_buen_estado', 'corona_mal_estado', 'pulpotomia',
+    'pulpectomia', 'lesiones_no_cariosas'
+];
+    let teniaMarcaCompleta = false;
+    let marcaCompletaAnterior = null;
+    
+    marcasCompletas.forEach(marca => {
+        if (tooth.classList.contains(marca)) {
+            teniaMarcaCompleta = true;
+            marcaCompletaAnterior = marca;
+            tooth.classList.remove(marca);
+            console.log(`🔄 Eliminando marca completa: ${marca}`);
+        }
+    });
+    
+    // INICIALIZAR ESTRUCTURA DE DATOS CORRECTAMENTE
+    if (teniaMarcaCompleta || !datosOdontograma[toothNumber] || datosOdontograma[toothNumber].tipo !== 'secciones') {
+        // Si tenía marca completa o no existe o es de tipo diferente, crear nueva estructura
+        datosOdontograma[toothNumber] = { 
+            tipo: 'secciones', 
+            secciones: {},
+            // Preservar información de que antes tenía marca completa si es necesario
+            marcaCompletaAnterior: marcaCompletaAnterior
+        };
+        console.log(`🆕 Nueva estructura creada para secciones`);
+    }
+    
+    // Asegurarse de que existe el objeto secciones
+    if (!datosOdontograma[toothNumber].secciones) {
+        datosOdontograma[toothNumber].secciones = {};
+    }
+    
+    // LIMPIAR Y APLICAR NUEVA MARCA EN LA SECCIÓN ESPECÍFICA
+    cell.className = '';
+    cell.classList.add('active');
+    
+    if (herramientaActual === 'caries') {
+        cell.classList.add('caries');
+        datosOdontograma[toothNumber].secciones[cell.dataset.section] = 'caries';
+        console.log(`✅ Aplicada caries en sección ${cell.dataset.section}`);
+    } else if (herramientaActual === 'obturacion') {
+        cell.classList.add('obturacion');
+        datosOdontograma[toothNumber].secciones[cell.dataset.section] = 'obturacion';
+        console.log(`✅ Aplicada obturación en sección ${cell.dataset.section}`);
+    }
+    
+    // Mostrar datos actualizados para debug
+    console.log(`📊 Datos actualizados:`, datosOdontograma[toothNumber]);
+    
+    // Agregar al historial y auto-guardar
+    agregarAlHistorial(toothNumber, `marcar_${herramientaActual}_en_${cell.dataset.section}`, datosAnteriores);
+    autoGuardar();
+}
+
+    function marcarDienteCompleto(tooth, toothNumber) {
+    // Guardar estado anterior para el historial
+    const datosAnteriores = datosOdontograma[toothNumber] ? 
+        JSON.parse(JSON.stringify(datosOdontograma[toothNumber])) : null;
+    
+    console.log(`🔧 Marcando diente completo - Diente: ${toothNumber}, Herramienta: ${herramientaActual}`);
+    console.log(`📊 Datos anteriores:`, datosAnteriores);
+    
+    // LIMPIAR TODAS LAS SECCIONES PRIMERO
+    tooth.querySelectorAll('div').forEach(cell => {
+        cell.className = '';
+    });
+    
+    // APLICAR NUEVA MARCA COMPLETA
+    tooth.className = 'tooth';
+    tooth.classList.add(herramientaActual);
+    
+    // ACTUALIZAR DATOS - IMPORTANTE: crear nueva estructura completa
+    datosOdontograma[toothNumber] = {
+        tipo: 'completo',
+        condicion: herramientaActual,
+        timestamp: Date.now()
+    };
+    
+    console.log(`✅ Aplicada marca completa: ${herramientaActual}`);
+    console.log(`📊 Datos actualizados:`, datosOdontograma[toothNumber]);
+    
+    // Agregar al historial y auto-guardar
+    agregarAlHistorial(toothNumber, `marcar_${herramientaActual}_completo`, datosAnteriores);
+    autoGuardar();
+}
+
+    function eliminarMarcas(tooth, toothNumber, cell = null) {
+    console.log(`🗑️ Eliminando - Diente: ${toothNumber}, Celda específica: ${cell ? 'Sí' : 'No'}`);
+    
+    // Guardar estado anterior para el historial
+    const datosAnteriores = datosOdontograma[toothNumber] ? 
+        JSON.parse(JSON.stringify(datosOdontograma[toothNumber])) : null;
+    
+    // CASO 1: Eliminar caries/obturacion específica en una celda
+    if (cell && (cell.classList.contains('caries') || cell.classList.contains('obturacion'))) {
+        console.log(`🗑️ Eliminando marca específica en sección ${cell.dataset.section}`);
+        
+        // Limpiar la celda específica
+        cell.className = '';
+        
+        // Actualizar datos
+        if (datosOdontograma[toothNumber] && datosOdontograma[toothNumber].tipo === 'secciones') {
+            delete datosOdontograma[toothNumber].secciones[cell.dataset.section];
+            
+            // Si no quedan secciones marcadas, limpiar el objeto
+            if (Object.keys(datosOdontograma[toothNumber].secciones).length === 0) {
+                delete datosOdontograma[toothNumber];
+            }
+        }
+        
+        // Agregar al historial y auto-guardar
+        agregarAlHistorial(toothNumber, 'eliminar_seccion', datosAnteriores);
+        autoGuardar();
+        return;
+    }
+    
+    // CASO 2: Eliminar marca completa (ausente, extraer, corona, etc.) O todas las marcas
+    console.log(`🗑️ Eliminando TODAS las marcas del diente ${toothNumber}`);
+    
+    // Limpiar todas las celdas
+    tooth.querySelectorAll('div').forEach(cell => {
+        cell.className = '';
+    });
+    
+    // Limpiar marca completa
+    tooth.className = 'tooth';
+    
+    // Eliminar del objeto de datos
+    delete datosOdontograma[toothNumber];
+    
+    // Agregar al historial y auto-guardar
+    agregarAlHistorial(toothNumber, 'eliminar_todo', datosAnteriores);
+    autoGuardar();
+}
+
+    // ========== FUNCIONES DE AUTO-GUARDADO E HISTORIAL ==========
+    function autoGuardar() {
+        console.log("🔄 Auto-guardando cambios...");
+        console.log("📊 Datos a guardar:", datosOdontograma);
+
+        // Verificar específicamente el diente que se está modificando
+    if (dienteSeleccionado) {
+        console.log(`🔍 Datos específicos del diente ${dienteSeleccionado}:`, datosOdontograma[dienteSeleccionado]);
+    }
+        
+        // Crear FormData para enviar via AJAX
+        const formData = new FormData();
+        
+        let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+        
+        if (!csrfToken) {
+            csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+        }
+        
+        if (!csrfToken) {
+            console.error('❌ Error: No se pudo encontrar el token de seguridad');
+            mostrarMensajePersonalizado('error', 'Error', 'No se pudo encontrar el token de seguridad');
+            return;
+        }
+        
+        formData.append('csrfmiddlewaretoken', csrfToken);
+        formData.append('datos_odontograma', JSON.stringify(datosOdontograma));
+        
+        // Enviar via AJAX para evitar refresh
+        fetch("{% url 'guardar_odontograma' paciente.id %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("📨 Respuesta del servidor:", data);
+            if (data.success) {
+                mostrarMensajePersonalizado('success', 'Éxito', 'Odontograma guardado correctamente');
+                console.log("✅ Odontograma guardado sin refresh");
+            } else {
+                throw new Error(data.error || 'Error al guardar');
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error al guardar:', error);
+            mostrarMensajePersonalizado('error', 'Error', 'No se pudo guardar el odontograma: ' + error.message);
+        });
+    }
+
+    function agregarAlHistorial(toothNumber, accion, datosAnteriores) {
+        // Limpiar historial futuro si estamos en medio del historial
+        if (indiceHistorial < historialAcciones.length - 1) {
+            historialAcciones = historialAcciones.slice(0, indiceHistorial + 1);
+        }
+        
+        const nuevaAccion = {
+            toothNumber: toothNumber,
+            accion: accion,
+            datosAnteriores: datosAnteriores,
+            datosActuales: JSON.parse(JSON.stringify(datosOdontograma[toothNumber] || {})),
+            timestamp: new Date().getTime()
+        };
+        
+        historialAcciones.push(nuevaAccion);
+        indiceHistorial = historialAcciones.length - 1;
+        
+        console.log(`📝 Acción agregada al historial: ${accion} en diente ${toothNumber}`);
+        actualizarBotonRevertir();
+    }
+
+    function revertirUltimaAccion() {
+        if (historialAcciones.length === 0 || indiceHistorial < 0) {
+            mostrarMensajePersonalizado('info', 'Sin acciones', 'No hay acciones para revertir.');
+            return;
+        }
+        
+        const ultimaAccion = historialAcciones[indiceHistorial];
+        
+        // Restaurar estado anterior
+        if (ultimaAccion.datosAnteriores === null) {
+            // Si no había datos anteriores, eliminar el diente
+            delete datosOdontograma[ultimaAccion.toothNumber];
+        } else {
+            // Restaurar datos anteriores
+            datosOdontograma[ultimaAccion.toothNumber] = ultimaAccion.datosAnteriores;
+        }
+        
+        // Actualizar vista
+        actualizarVistaDiente(ultimaAccion.toothNumber);
+        
+        console.log(`↩️ Revertida acción: ${ultimaAccion.accion} en diente ${ultimaAccion.toothNumber}`);
+        
+        // Mover índice del historial
+        indiceHistorial--;
+        
+        // Auto-guardar después de revertir
+        autoGuardar();
+        
+        actualizarBotonRevertir();
+    }
+
+    function actualizarVistaDiente(toothNumber) {
+        const toothElement = document.querySelector(`.tooth[data-tooth="${toothNumber}"]`);
+        if (!toothElement) return;
+        
+        // Limpiar todas las marcas
+        toothElement.querySelectorAll('div').forEach(cell => {
+            cell.className = '';
+        });
+        toothElement.className = 'tooth';
+        
+        // Aplicar datos actuales
+        const data = datosOdontograma[toothNumber];
+        if (data) {
+            if (data.tipo === 'completo') {
+                toothElement.classList.add(data.condicion);
+            } else if (data.tipo === 'secciones') {
+                for (const [section, condition] of Object.entries(data.secciones)) {
+                    const cell = toothElement.querySelector(`[data-section="${section}"]`);
+                    if (cell) {
+                        cell.classList.add('active', condition);
+                    }
+                }
+            }
+        }
+    }
+
+    function actualizarBotonRevertir() {
+        const btnRevertir = document.querySelector('.btn-revertir');
+        if (btnRevertir) {
+            const puedeRevertir = historialAcciones.length > 0 && indiceHistorial >= 0;
+            btnRevertir.disabled = !puedeRevertir;
+        }
+    }
+
+    // ========== ATALHO DE TECLADO CTRL+Z ==========
+    document.addEventListener('keydown', function(event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+            event.preventDefault();
+            revertirUltimaAccion();
+        }
+    });
+
+    // ========== FUNCIONES ORIGINALES DE MENSAJES ==========
+    function mostrarMensajePersonalizado(tipo, titulo, mensaje) {
+        // Colores según el tipo
+        const colores = {
+            'info': { bg: '#3498db', color: 'white', icon: 'ℹ️' },
+            'success': { bg: '#07AB78', color: 'white', icon: '✅' },
+            'warning': { bg: '#f39c12', color: 'white', icon: '⚠️' },
+            'error': { bg: '#e74c3c', color: 'white', icon: '❌' }
+        };
+        
+        const color = colores[tipo] || colores.info;
+        
+        // Crear mensaje
+        const mensajeDiv = document.createElement('div');
+        mensajeDiv.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${color.bg};
+            color: ${color.color};
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            max-width: 350px;
+            transform: translateX(400px);
+            animation: slideInRight 0.4s ease forwards, slideOutRight 0.4s ease 3s forwards;
+            font-family: Arial, sans-serif;
+            border-left: 4px solid ${color.color};
+        `;
+        
+        mensajeDiv.innerHTML = `
+            <div style="font-weight: bold; margin-bottom: 5px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                <span>${color.icon}</span>
+                <span>${titulo}</span>
+            </div>
+            <div style="font-size: 0.95rem;">${mensaje}</div>
+        `;
+        
+        document.body.appendChild(mensajeDiv);
+        
+        // Auto-eliminar después de 3 segundos
+        setTimeout(() => {
+            if (mensajeDiv.parentNode) {
+                mensajeDiv.remove();
+            }
+        }, 3000);
+    }
+
+    // ========== CARGAR DATOS EXISTENTES AL INICIAR ==========
+    function cargarDatosExistentes() {
+    console.log("📂 Cargando datos existentes del odontograma...");
+    console.log("📊 Datos a cargar:", datosOdontograma);
+    
+    for (const [toothNumber, data] of Object.entries(datosOdontograma)) {
+        const toothElement = document.querySelector(`.tooth[data-tooth="${toothNumber}"]`);
+        if (!toothElement) {
+            console.log(`❌ Diente ${toothNumber} no encontrado en el DOM`);
+            continue;
+        }
+        
+        console.log(`🔍 Procesando diente ${toothNumber}:`, data);
+        
+        // Limpiar primero
+        toothElement.querySelectorAll('div').forEach(cell => {
+            cell.className = '';
+        });
+        toothElement.className = 'tooth';
+        
+        if (data.tipo === 'completo') {
+            toothElement.classList.add(data.condicion);
+            console.log(`✅ Cargado diente ${toothNumber} como COMPLETO: ${data.condicion}`);
+        } else if (data.tipo === 'secciones') {
+            for (const [section, condition] of Object.entries(data.secciones)) {
+                const cell = toothElement.querySelector(`[data-section="${section}"]`);
+                if (cell) {
+                    cell.classList.add('active', condition);
+                    console.log(`✅ Cargado diente ${toothNumber} sección ${section}: ${condition}`);
+                } else {
+                    console.log(`❌ Sección ${section} no encontrada en diente ${toothNumber}`);
+                }
+            }
+        } else if (data.tipo === 'eliminado') {
+            console.log(`✅ Diente ${toothNumber} marcado como eliminado`);
+        }
+    }
+    console.log("📂 Carga de datos existentes completada");
+}
+
+    // Agregar animaciones CSS si no existen
+    if (!document.querySelector('#animaciones-custom')) {
+        const style = document.createElement('style');
+        style.id = 'animaciones-custom';
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes scaleIn {
+                from { transform: scale(0.9); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+            
+            @keyframes slideInRight {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+</script>
+{% endblock %}

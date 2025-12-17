@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .tratamientos-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .header-trata {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        background: #007a57;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    .titulo-trata {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    
+    .btn-nuevo-trata {
+        background: white;
+        color: #007a57;
+        padding: 12px 25px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+    
+    .btn-nuevo-trata:hover {
+        background: #f0f9f5;
+        transform: scale(1.05);
+    }
+    
+    .lista-tratamientos {
+        display: grid;
+        gap: 15px;
+    }
+    
+    .tratamiento-item {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 4px solid #007a57;
+    }
+    
+    .tratamiento-info {
+        flex-grow: 1;
+    }
+    
+    .tratamiento-titulo {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    
+    .acciones-trata {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .btn-accion {
+        padding: 8px 15px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-ver {
+        background: #3498db;
+        color: white;
+    }
+    
+    .btn-ver:hover {
+        background: #2980b9;
+    }
+    
+    .btn-mostrar {
+        background: #27ae60;
+        color: white;
+    }
+    
+    .btn-mostrar:hover {
+        background: #219652;
+    }
+    
+    .btn-eliminar {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+    }
+    
+    .btn-eliminar:hover {
+        background: #c0392b;
+        transform: scale(1.1);
+    }
+    
+    .sin-tratamientos {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+        font-style: italic;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="tratamientos-container">
+    <div class="header-trata">
+        <h1 class="titulo-trata">Tratamientos Odontológicos</h1>
+        <a href="{% url 'nuevo_tratamiento' %}" class="btn-nuevo-trata">
+            + Nuevo Tratamiento
+        </a>
+    </div>
+    
+    <div class="lista-tratamientos">
+        {% if tratamientos %}
+            {% for tratamiento in tratamientos %}
+            <div class="tratamiento-item">
+                <div class="tratamiento-info">
+                    <div class="tratamiento-titulo">{{ tratamiento.titulo }}</div>
+                </div>
+                <div class="acciones-trata">
+                    <a href="{% url 'ver_tratamiento' tratamiento.id %}" class="btn-accion btn-ver">
+                        Ver
+                    </a>
+                    <a href="{% url 'mostrar_tratamiento' tratamiento.id %}" class="btn-accion btn-mostrar">
+                        Mostrar
+                    </a>
+                    <form method="post" action="{% url 'eliminar_tratamiento' tratamiento.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="button" class="btn-eliminar" onclick="mostrarConfirmacionEliminarTratamiento('{{ tratamiento.titulo }}', {{ tratamiento.id }})">
+                            🗑️
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="sin-tratamientos">
+                <h3>No hay tratamientos registrados</h3>
+                <p>Crea tu primer tratamiento haciendo clic en "Nuevo Tratamiento"</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// FUNCIÓN PARA MENSAJE DE CONFIRMACIÓN ELEGANTE
+function mostrarConfirmacionEliminarTratamiento(tituloTratamiento, tratamientoId) {
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Crear modal de confirmación
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        background: white;
+        border-radius: 16px;
+        padding: 0;
+        width: 90%;
+        max-width: 450px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        transform: scale(0.9);
+        animation: scaleIn 0.3s ease forwards;
+        overflow: hidden;
+        border: 2px solid #e8f5f1;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #007a57 0%, #07AB78 100%); padding: 25px; text-align: center;">
+            <h3 style="margin: 0; color: white; font-size: 1.4rem; font-weight: bold;">
+                🗑️ Eliminar Tratamiento
+            </h3>
+        </div>
+        <div style="padding: 30px; text-align: center;">
+            <div style="font-size: 1.2rem; color: #333; line-height: 1.6; margin-bottom: 25px;">
+                ¿Estás seguro de que quieres eliminar el tratamiento 
+                <strong style="color: #007a57;">"${tituloTratamiento}"</strong>?
+            </div>
+            <div style="background: #fff5f5; padding: 15px; border-radius: 10px; border-left: 4px solid #e74c3c; margin-bottom: 25px;">
+                <span style="color: #e74c3c; font-size: 0.95rem; font-weight: bold;">
+                    ⚠️ Esta acción no se puede deshacer y se eliminarán todas las fotos asociadas.
+                </span>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="btnCancelarConfirm" style="
+                    padding: 12px 30px;
+                    background: #95a5a6;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 1rem;
+                    min-width: 120px;
+                    border: 2px solid #95a5a6;
+                " onmouseover="this.style.background='#7f8c8d'; this.style.borderColor='#7f8c8d'" 
+                onmouseout="this.style.background='#95a5a6'; this.style.borderColor='#95a5a6'">
+                    Cancelar
+                </button>
+                <button id="btnAceptarConfirm" style="
+                    padding: 12px 30px;
+                    background: #e74c3c;
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 1rem;
+                    min-width: 120px;
+                    border: 2px solid #e74c3c;
+                " onmouseover="this.style.background='#c0392b'; this.style.borderColor='#c0392b'" 
+                onmouseout="this.style.background='#e74c3c'; this.style.borderColor='#e74c3c'">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    // Eventos de los botones
+    document.getElementById('btnAceptarConfirm').addEventListener('click', function() {
+        // Enviar formulario de eliminación
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/tratamientos/${tratamientoId}/eliminar/`;
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    });
+    
+    document.getElementById('btnCancelarConfirm').addEventListener('click', function() {
+        overlay.remove();
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Cerrar al hacer clic fuera del modal
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.remove();
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+// Agregar animaciones CSS
+if (!document.querySelector('#animaciones-custom')) {
+    const style = document.createElement('style');
+    style.id = 'animaciones-custom';
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+</script>
+{% endblock %}

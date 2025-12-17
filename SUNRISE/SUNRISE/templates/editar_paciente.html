@@ -1,0 +1,1149 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .form-container {
+        max-width: 900px;
+        margin: 60px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    h2 {
+        color: #3498db;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    
+    .seccion {
+        margin-bottom: 10px;
+    }
+    
+    .campos-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .campo {
+        margin-bottom: 15px;
+    }
+    
+    .campo label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .campo .obligatorio {
+        color: #e74c3c;
+    }
+    
+    .campo input,
+    .campo textarea,
+    .campo select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+    
+    .campo textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    h3 {
+        color: #3498db;
+        margin-bottom: 20px;
+    }
+    
+    .info-text {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    /* Estilos para checkboxes en línea */
+    .checkbox-group {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+    
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .checkbox-item input[type="radio"] {
+        width: auto;
+        margin-right: 5px;
+    }
+    
+    .subseccion {
+        margin-left: 20px;
+        margin-top: 15px;
+        padding-left: 15px;
+        border-left: 2px solid #3498db;
+    }
+    
+    .campo-condicional {
+        margin-top: 10px;
+        display: none;
+    }
+    
+    .campo-condicional.visible {
+        display: block;
+    }
+    
+    .grupo-preguntas {
+        background: #f8fdfb;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border-left: 3px solid #3498db;
+    }
+    
+    .pregunta-item {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .pregunta-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .btn-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .btn-guardar {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        flex: 1;
+    }
+    
+    .btn-guardar:hover {
+        background-color: #1c74aeff;
+    }
+    
+    .btn-añadir {
+        background-color: #d72bdaff;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        flex: 1;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-añadir:hover {
+        background-color: #8b178dff;
+    }
+    /* ESTILOS MEJORADOS PERO CONSERVANDO EL ESTILO ORIGINAL */
+.checkbox-group {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.checkbox-item input[type="radio"] {
+    width: auto;
+    margin-right: 5px;
+    transform: scale(1.2);
+    transition: all 0.2s ease;
+}
+
+.checkbox-item input[type="radio"]:hover {
+    transform: scale(1.4);
+    cursor: pointer;
+}
+
+.checkbox-item label {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+/* Efecto hover en el label completo */
+.checkbox-item:hover label {
+    background-color: #f0f8ff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.2);
+}
+
+/* Estilo cuando está seleccionado - COLOR AZUL */
+.checkbox-item input[type="radio"]:checked + label {
+    color: #3498db;
+    font-weight: bold;
+    background-color: #ecf7fe;
+    border-radius: 5px;
+    padding: 5px 10px;
+    animation: pulse 0.3s ease;
+}
+
+/* Punto azul personalizado para el radio button seleccionado */
+.checkbox-item input[type="radio"]:checked {
+    accent-color: #3498db;
+}
+
+/* Animación de pulso cuando se selecciona */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Efecto de elevación suave al pasar el mouse */
+.checkbox-item {
+    transition: transform 0.2s ease;
+}
+
+.checkbox-item:hover {
+    transform: translateY(-1px);
+}
+
+/* Mantener el estilo original de los grupos de preguntas */
+.grupo-preguntas {
+    background: #f8fdfb;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border-left: 3px solid #00986c;
+}
+
+.pregunta-item {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.pregunta-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+/* Mejorar los títulos de las preguntas */
+.pregunta-item label:first-child {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Campos condicionales manteniendo estilo original */
+.campo-condicional {
+    margin-top: 10px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.campo-condicional.visible {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .checkbox-group {
+        gap: 15px;
+    }
+    
+    .checkbox-item label {
+        padding: 4px 8px;
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<div class="form-container">
+    <h2>Editar Paciente: {{ paciente.nombre }} {{ paciente.apellido }}</h2>
+    <form method="post" id="pacienteForm">
+        {% csrf_token %}
+        
+        <!-- SECCIÓN 1: DATOS PERSONALES -->
+        <div class="seccion">
+            <h3 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 20px;">
+                DATOS PERSONALES
+            </h3>
+            
+            <div class="campos-grid">
+                <div class="campo">
+                    <label for="nombre">Nombres: <span class="obligatorio">*</span></label>
+                    <input type="text" id="nombre" name="nombre" value="{{ paciente.nombre }}" required>
+                    <div class="info-text">Obligatorio</div>
+                </div>
+                
+                <div class="campo">
+                    <label for="apellido">Apellidos: <span class="obligatorio">*</span></label>
+                    <input type="text" id="apellido" name="apellido" value="{{ paciente.apellido }}" required>
+                    <div class="info-text">Obligatorio</div>
+                </div>
+            </div>
+            
+            <div class="campos-grid">
+                <div class="campo">
+                    <label for="ci">CI:</label>
+                    <input type="text" id="ci" name="ci" value="{{ paciente.ci|default:'' }}">
+                    <div class="info-text">Opcional</div>
+                </div>
+                
+                <div class="campo">
+                    <label for="fecha_nacimiento">Fecha de nacimiento:</label>
+                    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" 
+                           value="{{ paciente.fecha_nacimiento|date:'Y-m-d' }}">
+                    <div class="info-text">Opcional</div>
+                </div>
+            </div>
+            
+            <div class="campos-grid">
+                <div class="campo">
+                    <label for="genero">Género:</label>
+                    <select id="genero" name="genero">
+                        <option value="masculino" {% if paciente.genero == 'masculino' %}selected{% endif %}>Masculino</option>
+                        <option value="femenino" {% if paciente.genero == 'femenino' %}selected{% endif %}>Femenino</option>
+                    </select>
+                    <div class="info-text">Opcional</div>
+                </div>
+                
+                <div class="campo">
+                    <label for="ocupacion">Ocupación:</label>
+                    <input type="text" id="ocupacion" name="ocupacion" value="{{ paciente.ocupacion|default:'' }}">
+                    <div class="info-text">Opcional</div>
+                </div>
+            </div>
+            
+            <div class="campo">
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" name="telefono" value="{{ paciente.telefono|default:'' }}">
+                <div class="info-text">Opcional</div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: HISTORIAL CLÍNICO -->
+        <div class="seccion">
+            <h3 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 20px; margin-top: 30px;">
+                HISTORIAL CLÍNICO
+            </h3>
+            
+            <div class="campo">
+                <label for="motivo_consulta">Motivo de consulta:</label>
+                <textarea id="motivo_consulta" name="motivo_consulta" rows="3" placeholder="Describa el motivo de la consulta...">{{ paciente.motivo_consulta|default:'' }}</textarea>
+            </div>
+            
+            <div class="campo">
+                <label for="enfermedad_actual">Enfermedad actual:</label>
+                <textarea id="enfermedad_actual" name="enfermedad_actual" rows="3" placeholder="Describa la enfermedad actual...">{{ paciente.enfermedad_actual|default:'' }}</textarea>
+            </div>
+            
+            <div class="campo">
+                <label for="antecedentes_familiares_patologicos">Antecedentes familiares patológicos:</label>
+                <textarea id="antecedentes_familiares_patologicos" name="antecedentes_familiares_patologicos" rows="3" placeholder="Describa los antecedentes familiares patológicos...">{{ paciente.antecedentes_familiares_patologicos|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: ANTECEDENTES PERSONALES PATOLÓGICOS -->
+        <div class="seccion">
+            <h3 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 20px; margin-top: 30px;">
+                ANTECEDENTES PERSONALES PATOLÓGICOS
+            </h3>
+            
+            <div class="grupo-preguntas">
+                <!-- Anemia -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Anemia:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="anemia_si" name="anemia" value="si" {% if paciente.anemia == 'si' %}checked{% endif %}>
+                            <label for="anemia_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="anemia_no" name="anemia" value="no" {% if paciente.anemia == 'no' %}checked{% endif %}>
+                            <label for="anemia_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="anemia_pendiente" name="anemia" value="pendiente" {% if not paciente.anemia or paciente.anemia == 'pendiente' %}checked{% endif %}>
+                            <label for="anemia_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cardiopatías -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Cardiopatías:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="cardiopatias_si" name="cardiopatias" value="si" {% if paciente.cardiopatias == 'si' %}checked{% endif %}>
+                            <label for="cardiopatias_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="cardiopatias_no" name="cardiopatias" value="no" {% if paciente.cardiopatias == 'no' %}checked{% endif %}>
+                            <label for="cardiopatias_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="cardiopatias_pendiente" name="cardiopatias" value="pendiente" {% if not paciente.cardiopatias or paciente.cardiopatias == 'pendiente' %}checked{% endif %}>
+                            <label for="cardiopatias_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Diabetes -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Diabetes:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="diabetes_si" name="diabetes" value="si" {% if paciente.diabetes == 'si' %}checked{% endif %}>
+                            <label for="diabetes_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="diabetes_no" name="diabetes" value="no" {% if paciente.diabetes == 'no' %}checked{% endif %}>
+                            <label for="diabetes_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="diabetes_pendiente" name="diabetes" value="pendiente" {% if not paciente.diabetes or paciente.diabetes == 'pendiente' %}checked{% endif %}>
+                            <label for="diabetes_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Enfermedades gástricas -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Enfermedades gástricas:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="enf_gastricas_si" name="enf_gastricas" value="si" {% if paciente.enf_gastricas == 'si' %}checked{% endif %}>
+                            <label for="enf_gastricas_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="enf_gastricas_no" name="enf_gastricas" value="no" {% if paciente.enf_gastricas == 'no' %}checked{% endif %}>
+                            <label for="enf_gastricas_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="enf_gastricas_pendiente" name="enf_gastricas" value="pendiente" {% if not paciente.enf_gastricas or paciente.enf_gastricas == 'pendiente' %}checked{% endif %}>
+                            <label for="enf_gastricas_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Epilepsia -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Epilepsia:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="epilepsia_si" name="epilepsia" value="si" {% if paciente.epilepsia == 'si' %}checked{% endif %}>
+                            <label for="epilepsia_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="epilepsia_no" name="epilepsia" value="no" {% if paciente.epilepsia == 'no' %}checked{% endif %}>
+                            <label for="epilepsia_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="epilepsia_pendiente" name="epilepsia" value="pendiente" {% if not paciente.epilepsia or paciente.epilepsia == 'pendiente' %}checked{% endif %}>
+                            <label for="epilepsia_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Hipertensión -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Hipertensión:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="hipertencion_si" name="hipertencion" value="si" {% if paciente.hipertencion == 'si' %}checked{% endif %}>
+                            <label for="hipertencion_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="hipertencion_no" name="hipertencion" value="no" {% if paciente.hipertencion == 'no' %}checked{% endif %}>
+                            <label for="hipertencion_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="hipertencion_pendiente" name="hipertencion" value="pendiente" {% if not paciente.hipertencion or paciente.hipertencion == 'pendiente' %}checked{% endif %}>
+                            <label for="hipertencion_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- VIH -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">VIH:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="vih_si" name="vih" value="si" {% if paciente.vih == 'si' %}checked{% endif %}>
+                            <label for="vih_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="vih_no" name="vih" value="no" {% if paciente.vih == 'no' %}checked{% endif %}>
+                            <label for="vih_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="vih_pendiente" name="vih" value="pendiente" {% if not paciente.vih or paciente.vih == 'pendiente' %}checked{% endif %}>
+                            <label for="vih_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="campo">
+                <label for="observaciones_patologicos">Observaciones:</label>
+                <textarea id="observaciones_patologicos" name="observaciones_patologicos" rows="3" placeholder="Observaciones adicionales...">{{ paciente.observaciones_patologicos|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 4: PREGUNTAS MÉDICAS -->
+        <div class="seccion">
+            <h3 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 20px; margin-top: 30px;">
+                PREGUNTAS MÉDICAS
+            </h3>
+            
+            <div class="grupo-preguntas">
+                <!-- Tratamiento médico -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">¿Está actualmente en tratamiento médico?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="tratamiento_medico_si" name="tratamiento_medico_actual" value="si" {% if paciente.tratamiento_medico_actual == 'si' %}checked{% endif %} onchange="toggleDescripcion('tratamiento_medico', this.value)">
+                            <label for="tratamiento_medico_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="tratamiento_medico_no" name="tratamiento_medico_actual" value="no" {% if paciente.tratamiento_medico_actual == 'no' %}checked{% endif %} onchange="toggleDescripcion('tratamiento_medico', this.value)">
+                            <label for="tratamiento_medico_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="tratamiento_medico_pendiente" name="tratamiento_medico_actual" value="pendiente" {% if not paciente.tratamiento_medico_actual or paciente.tratamiento_medico_actual == 'pendiente' %}checked{% endif %} onchange="toggleDescripcion('tratamiento_medico', this.value)">
+                            <label for="tratamiento_medico_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                    <div class="campo-condicional" id="tratamiento_medico_desc">
+                        <label for="tratamiento_medico_desc_input">Describa el tratamiento médico:</label>
+                        <textarea id="tratamiento_medico_desc_input" name="tratamiento_medico_desc" rows="2" placeholder="Describa el tratamiento médico...">{% if paciente.tratamiento_medico_desc %}{{ paciente.tratamiento_medico_desc }}{% endif %}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Medicamentos -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">¿Actualmente toma medicamentos?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="toma_medicamentos_si" name="toma_medicamentos" value="si" {% if paciente.toma_medicamentos == 'si' %}checked{% endif %} onchange="toggleDescripcion('medicamentos', this.value)">
+                            <label for="toma_medicamentos_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="toma_medicamentos_no" name="toma_medicamentos" value="no" {% if paciente.toma_medicamentos == 'no' %}checked{% endif %} onchange="toggleDescripcion('medicamentos', this.value)">
+                            <label for="toma_medicamentos_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="toma_medicamentos_pendiente" name="toma_medicamentos" value="pendiente" {% if not paciente.toma_medicamentos or paciente.toma_medicamentos == 'pendiente' %}checked{% endif %} onchange="toggleDescripcion('medicamentos', this.value)">
+                            <label for="toma_medicamentos_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                    <div class="campo-condicional" id="medicamentos_desc">
+                        <label for="medicamentos_desc_input">Describa los medicamentos:</label>
+                        <textarea id="medicamentos_desc_input" name="medicamentos_desc" rows="2" placeholder="Describa los medicamentos que toma...">{% if paciente.medicamentos_desc %}{{ paciente.medicamentos_desc }}{% endif %}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Alergias -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">¿Presentó alguna alergia?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="alergias_si" name="alergias" value="si" {% if paciente.alergias == 'si' %}checked{% endif %} onchange="toggleDescripcion('alergias', this.value)">
+                            <label for="alergias_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="alergias_no" name="alergias" value="no" {% if paciente.alergias == 'no' %}checked{% endif %} onchange="toggleDescripcion('alergias', this.value)">
+                            <label for="alergias_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="alergias_pendiente" name="alergias" value="pendiente" {% if not paciente.alergias or paciente.alergias == 'pendiente' %}checked{% endif %} onchange="toggleDescripcion('alergias', this.value)">
+                            <label for="alergias_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                    <div class="campo-condicional" id="alergias_desc">
+                        <label for="alergias_desc_input">Describa las alergias:</label>
+                        <textarea id="alergias_desc_input" name="alergias_desc" rows="2" placeholder="Describa las alergias...">{% if paciente.alergias_desc %}{{ paciente.alergias_desc }}{% endif %}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Intervención quirúrgica -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">¿Recibió alguna intervención quirúrgica?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="intervencion_quirurgica_si" name="intervencion_quirurgica" value="si" {% if paciente.intervencion_quirurgica == 'si' %}checked{% endif %} onchange="toggleDescripcion('intervencion_quirurgica', this.value)">
+                            <label for="intervencion_quirurgica_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="intervencion_quirurgica_no" name="intervencion_quirurgica" value="no" {% if paciente.intervencion_quirurgica == 'no' %}checked{% endif %} onchange="toggleDescripcion('intervencion_quirurgica', this.value)">
+                            <label for="intervencion_quirurgica_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="intervencion_quirurgica_pendiente" name="intervencion_quirurgica" value="pendiente" {% if not paciente.intervencion_quirurgica or paciente.intervencion_quirurgica == 'pendiente' %}checked{% endif %} onchange="toggleDescripcion('intervencion_quirurgica', this.value)">
+                            <label for="intervencion_quirurgica_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                    <div class="campo-condicional" id="intervencion_quirurgica_desc">
+                        <label for="intervencion_quirurgica_desc_input">Describa la intervención quirúrgica:</label>
+                        <textarea id="intervencion_quirurgica_desc_input" name="intervencion_quirurgica_desc" rows="2" placeholder="Describa la intervención quirúrgica...">{% if paciente.intervencion_quirurgica_desc %}{{ paciente.intervencion_quirurgica_desc }}{% endif %}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Reacción anestecia -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">¿Tuvo alguna reacción a la anestecia local?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="reaccion_anestecia_si" name="reaccion_anestecia" value="si" {% if paciente.reaccion_anestecia == 'si' %}checked{% endif %} onchange="toggleDescripcion('reaccion_anestecia', this.value)">
+                            <label for="reaccion_anestecia_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="reaccion_anestecia_no" name="reaccion_anestecia" value="no" {% if paciente.reaccion_anestecia == 'no' %}checked{% endif %} onchange="toggleDescripcion('reaccion_anestecia', this.value)">
+                            <label for="reaccion_anestecia_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="reaccion_anestecia_pendiente" name="reaccion_anestecia" value="pendiente" {% if not paciente.reaccion_anestecia or paciente.reaccion_anestecia == 'pendiente' %}checked{% endif %} onchange="toggleDescripcion('reaccion_anestecia', this.value)">
+                            <label for="reaccion_anestecia_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                    <div class="campo-condicional" id="reaccion_anestecia_desc">
+                        <label for="reaccion_anestecia_desc_input">Describa la reacción:</label>
+                        <textarea id="reaccion_anestecia_desc_input" name="reaccion_anestecia_desc" rows="2" placeholder="Describa la reacción a la anestecia...">{% if paciente.reaccion_anestecia_desc %}{{ paciente.reaccion_anestecia_desc }}{% endif %}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Hemorragia exodoncia -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">¿Tuvo hemorragia después de exodoncia?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="hemorragia_exodoncia_si" name="hemorragia_exodoncia" value="si" {% if paciente.hemorragia_exodoncia == 'si' %}checked{% endif %} onchange="toggleDescripcion('hemorragia_exodoncia', this.value)">
+                            <label for="hemorragia_exodoncia_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="hemorragia_exodoncia_no" name="hemorragia_exodoncia" value="no" {% if paciente.hemorragia_exodoncia == 'no' %}checked{% endif %} onchange="toggleDescripcion('hemorragia_exodoncia', this.value)">
+                            <label for="hemorragia_exodoncia_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="hemorragia_exodoncia_pendiente" name="hemorragia_exodoncia" value="pendiente" {% if not paciente.hemorragia_exodoncia or paciente.hemorragia_exodoncia == 'pendiente' %}checked{% endif %} onchange="toggleDescripcion('hemorragia_exodoncia', this.value)">
+                            <label for="hemorragia_exodoncia_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                    <div class="campo-condicional" id="hemorragia_exodoncia_desc">
+                        <label for="hemorragia_exodoncia_desc_input">Describa la hemorragia:</label>
+                        <textarea id="hemorragia_exodoncia_desc_input" name="hemorragia_exodoncia_desc" rows="2" placeholder="Describa la hemorragia...">{% if paciente.hemorragia_exodoncia_desc %}{{ paciente.hemorragia_exodoncia_desc }}{% endif %}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Alteraciones cicatrización -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">¿Presentó alteraciones en la cicatrización?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="alteraciones_cicatrizacion_si" name="alteraciones_cicatrizacion" value="si" {% if paciente.alteraciones_cicatrizacion == 'si' %}checked{% endif %} onchange="toggleDescripcion('alteraciones_cicatrizacion', this.value)">
+                            <label for="alteraciones_cicatrizacion_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="alteraciones_cicatrizacion_no" name="alteraciones_cicatrizacion" value="no" {% if paciente.alteraciones_cicatrizacion == 'no' %}checked{% endif %} onchange="toggleDescripcion('alteraciones_cicatrizacion', this.value)">
+                            <label for="alteraciones_cicatrizacion_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="alteraciones_cicatrizacion_pendiente" name="alteraciones_cicatrizacion" value="pendiente" {% if not paciente.alteraciones_cicatrizacion or paciente.alteraciones_cicatrizacion == 'pendiente' %}checked{% endif %} onchange="toggleDescripcion('alteraciones_cicatrizacion', this.value)">
+                            <label for="alteraciones_cicatrizacion_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                    <div class="campo-condicional" id="alteraciones_cicatrizacion_desc">
+                        <label for="alteraciones_cicatrizacion_desc_input">Describa las alteraciones:</label>
+                        <textarea id="alteraciones_cicatrizacion_desc_input" name="alteraciones_cicatrizacion_desc" rows="2" placeholder="Describa las alteraciones en la cicatrización...">{% if paciente.alteraciones_cicatrizacion_desc %}{{ paciente.alteraciones_cicatrizacion_desc }}{% endif %}</textarea>
+                    </div>
+                </div>
+                
+                <!-- Embarazada -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">¿Está embarazada?</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="embarazada_si" name="embarazada" value="si" {% if paciente.embarazada == 'si' %}checked{% endif %} onchange="toggleDescripcion('embarazada', this.value)">
+                            <label for="embarazada_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="embarazada_no" name="embarazada" value="no" {% if paciente.embarazada == 'no' %}checked{% endif %} onchange="toggleDescripcion('embarazada', this.value)">
+                            <label for="embarazada_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="embarazada_pendiente" name="embarazada" value="pendiente" {% if not paciente.embarazada or paciente.embarazada == 'pendiente' %}checked{% endif %} onchange="toggleDescripcion('embarazada', this.value)">
+                            <label for="embarazada_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                    <div class="campo-condicional" id="embarazada_desc">
+                        <label for="embarazada_desc_input">Observaciones sobre el embarazo:</label>
+                        <textarea id="embarazada_desc_input" name="embarazada_desc" rows="2" placeholder="Observaciones sobre el embarazo...">{% if paciente.embarazada_desc %}{{ paciente.embarazada_desc }}{% endif %}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 5: ANTECEDENTES PERSONALES NO PATOLÓGICOS -->
+        <div class="seccion">
+            <h3 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 20px; margin-top: 30px;">
+                ANTECEDENTES PERSONALES NO PATOLÓGICOS
+            </h3>
+            
+            <div class="grupo-preguntas">
+                <!-- Fuma -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Fuma:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="fuma_si" name="fuma" value="si" {% if paciente.fuma == 'si' %}checked{% endif %}>
+                            <label for="fuma_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="fuma_no" name="fuma" value="no" {% if paciente.fuma == 'no' %}checked{% endif %}>
+                            <label for="fuma_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="fuma_pendiente" name="fuma" value="pendiente" {% if not paciente.fuma or paciente.fuma == 'pendiente' %}checked{% endif %}>
+                            <label for="fuma_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bebe -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Bebe:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="bebe_si" name="bebe" value="si" {% if paciente.bebe == 'si' %}checked{% endif %}>
+                            <label for="bebe_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="bebe_no" name="bebe" value="no" {% if paciente.bebe == 'no' %}checked{% endif %}>
+                            <label for="bebe_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="bebe_pendiente" name="bebe" value="pendiente" {% if not paciente.bebe or paciente.bebe == 'pendiente' %}checked{% endif %}>
+                            <label for="bebe_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Respiración bucal -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Respiración bucal:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="respiracion_bucal_si" name="respiracion_bucal" value="si" {% if paciente.respiracion_bucal == 'si' %}checked{% endif %}>
+                            <label for="respiracion_bucal_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="respiracion_bucal_no" name="respiracion_bucal" value="no" {% if paciente.respiracion_bucal == 'no' %}checked{% endif %}>
+                            <label for="respiracion_bucal_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="respiracion_bucal_pendiente" name="respiracion_bucal" value="pendiente" {% if not paciente.respiracion_bucal or paciente.respiracion_bucal == 'pendiente' %}checked{% endif %}>
+                            <label for="respiracion_bucal_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Queilofagia -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Queilofagia:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="queilofagia_si" name="queilofagia" value="si" {% if paciente.queilofagia == 'si' %}checked{% endif %}>
+                            <label for="queilofagia_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="queilofagia_no" name="queilofagia" value="no" {% if paciente.queilofagia == 'no' %}checked{% endif %}>
+                            <label for="queilofagia_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="queilofagia_pendiente" name="queilofagia" value="pendiente" {% if not paciente.queilofagia or paciente.queilofagia == 'pendiente' %}checked{% endif %}>
+                            <label for="queilofagia_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Onicofagia -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Onicofagia:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="onicofagia_si" name="onicofagia" value="si" {% if paciente.onicofagia == 'si' %}checked{% endif %}>
+                            <label for="onicofagia_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="onicofagia_no" name="onicofagia" value="no" {% if paciente.onicofagia == 'no' %}checked{% endif %}>
+                            <label for="onicofagia_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="onicofagia_pendiente" name="onicofagia" value="pendiente" {% if not paciente.onicofagia or paciente.onicofagia == 'pendiente' %}checked{% endif %}>
+                            <label for="onicofagia_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bruxismo -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Bruxismo:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="bruxismo_si" name="bruxismo" value="si" {% if paciente.bruxismo == 'si' %}checked{% endif %}>
+                            <label for="bruxismo_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="bruxismo_no" name="bruxismo" value="no" {% if paciente.bruxismo == 'no' %}checked{% endif %}>
+                            <label for="bruxismo_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="bruxismo_pendiente" name="bruxismo" value="pendiente" {% if not paciente.bruxismo or paciente.bruxismo == 'pendiente' %}checked{% endif %}>
+                            <label for="bruxismo_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mastica coca -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Mastica coca:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="mastica_coca_si" name="mastica_coca" value="si" {% if paciente.mastica_coca == 'si' %}checked{% endif %}>
+                            <label for="mastica_coca_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="mastica_coca_no" name="mastica_coca" value="no" {% if paciente.mastica_coca == 'no' %}checked{% endif %}>
+                            <label for="mastica_coca_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="mastica_coca_pendiente" name="mastica_coca" value="pendiente" {% if not paciente.mastica_coca or paciente.mastica_coca == 'pendiente' %}checked{% endif %}>
+                            <label for="mastica_coca_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mastica chicle -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Mastica chicle:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="mastica_chicle_si" name="mastica_chicle" value="si" {% if paciente.mastica_chicle == 'si' %}checked{% endif %}>
+                            <label for="mastica_chicle_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="mastica_chicle_no" name="mastica_chicle" value="no" {% if paciente.mastica_chicle == 'no' %}checked{% endif %}>
+                            <label for="mastica_chicle_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="mastica_chicle_pendiente" name="mastica_chicle" value="pendiente" {% if not paciente.mastica_chicle or paciente.mastica_chicle == 'pendiente' %}checked{% endif %}>
+                            <label for="mastica_chicle_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mordisqueo objetos -->
+                <div class="pregunta-item">
+                    <label style="display: block; margin-bottom: 10px; font-weight: bold;">Mordisqueo objetos:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="radio" id="mordisqueo_objetos_si" name="mordisqueo_objetos" value="si" {% if paciente.mordisqueo_objetos == 'si' %}checked{% endif %}>
+                            <label for="mordisqueo_objetos_si">Sí</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="mordisqueo_objetos_no" name="mordisqueo_objetos" value="no" {% if paciente.mordisqueo_objetos == 'no' %}checked{% endif %}>
+                            <label for="mordisqueo_objetos_no">No</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="radio" id="mordisqueo_objetos_pendiente" name="mordisqueo_objetos" value="pendiente" {% if not paciente.mordisqueo_objetos or paciente.mordisqueo_objetos == 'pendiente' %}checked{% endif %}>
+                            <label for="mordisqueo_objetos_pendiente">Pendiente</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SUBSECCIÓN: SI ES MENOR DE EDAD -->
+            <div class="subseccion">
+                <h4 style="color: #3498db; margin-bottom: 15px;">Si es menor de edad</h4>
+                
+                <div class="grupo-preguntas">
+                    <!-- Uso biberón -->
+                    <div class="pregunta-item">
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">Uso biberón:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="uso_biberon_si" name="uso_biberon" value="si" {% if paciente.uso_biberon == 'si' %}checked{% endif %}>
+                                <label for="uso_biberon_si">Sí</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="uso_biberon_no" name="uso_biberon" value="no" {% if paciente.uso_biberon == 'no' %}checked{% endif %}>
+                                <label for="uso_biberon_no">No</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="uso_biberon_pendiente" name="uso_biberon" value="pendiente" {% if not paciente.uso_biberon or paciente.uso_biberon == 'pendiente' %}checked{% endif %}>
+                                <label for="uso_biberon_pendiente">Pendiente</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Uso chupón -->
+                    <div class="pregunta-item">
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">Uso chupón:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="uso_chupon_si" name="uso_chupon" value="si" {% if paciente.uso_chupon == 'si' %}checked{% endif %}>
+                                <label for="uso_chupon_si">Sí</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="uso_chupon_no" name="uso_chupon" value="no" {% if paciente.uso_chupon == 'no' %}checked{% endif %}>
+                                <label for="uso_chupon_no">No</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="uso_chupon_pendiente" name="uso_chupon" value="pendiente" {% if not paciente.uso_chupon or paciente.uso_chupon == 'pendiente' %}checked{% endif %}>
+                                <label for="uso_chupon_pendiente">Pendiente</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Succión de dedo -->
+                    <div class="pregunta-item">
+                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">Succión de dedo:</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="radio" id="succion_dedo_si" name="succion_dedo" value="si" {% if paciente.succion_dedo == 'si' %}checked{% endif %}>
+                                <label for="succion_dedo_si">Sí</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="succion_dedo_no" name="succion_dedo" value="no" {% if paciente.succion_dedo == 'no' %}checked{% endif %}>
+                                <label for="succion_dedo_no">No</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="radio" id="succion_dedo_pendiente" name="succion_dedo" value="pendiente" {% if not paciente.succion_dedo or paciente.succion_dedo == 'pendiente' %}checked{% endif %}>
+                                <label for="succion_dedo_pendiente">Pendiente</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 6: VALORACIÓN DE HIGIENE DENTO-BUCAL -->
+<div class="seccion">
+    <h3 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 8px; margin-bottom: 20px; margin-top: 30px;">
+        VALORACIÓN DE HIGIENE DENTO-BUCAL
+    </h3>
+    
+    <div class="grupo-preguntas">
+        <!-- Higiene Bucal -->
+        <div class="pregunta-item">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Higiene Bucal:</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="radio" id="higiene_bucal_mala" name="higiene_bucal" value="mala" {% if paciente.higiene_bucal == 'mala' %}checked{% endif %}>
+                    <label for="higiene_bucal_mala">Mala</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="higiene_bucal_regular" name="higiene_bucal" value="regular" {% if paciente.higiene_bucal == 'regular' %}checked{% endif %}>
+                    <label for="higiene_bucal_regular">Regular</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="higiene_bucal_buena" name="higiene_bucal" value="buena" {% if paciente.higiene_bucal == 'buena' %}checked{% endif %}>
+                    <label for="higiene_bucal_buena">Buena</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="higiene_bucal_pendiente" name="higiene_bucal" value="pendiente" {% if not paciente.higiene_bucal or paciente.higiene_bucal == 'pendiente' %}checked{% endif %}>
+                    <label for="higiene_bucal_pendiente">Pendiente</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Frecuencia de cepillado -->
+        <div class="campo">
+            <label for="frecuencia_cepillado">Frecuencia de cepillado al día:</label>
+            <input type="text" id="frecuencia_cepillado" name="frecuencia_cepillado" value="{{ paciente.frecuencia_cepillado|default:'' }}" placeholder="Ej: 3 veces al día">
+            <div class="info-text">Opcional</div>
+        </div>
+        
+        <!-- Cambio de cepillo -->
+        <div class="campo">
+            <label for="cambio_cepillo">Cada cuánto tiempo cambia su cepillo:</label>
+            <input type="text" id="cambio_cepillo" name="cambio_cepillo" value="{{ paciente.cambio_cepillo|default:'' }}" placeholder="Ej: Cada 3 meses">
+            <div class="info-text">Opcional</div>
+        </div>
+        
+        <!-- Suburra -->
+        <div class="pregunta-item">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Suburra:</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="radio" id="suburra_si" name="suburra" value="si" {% if paciente.suburra == 'si' %}checked{% endif %}>
+                    <label for="suburra_si">Sí</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="suburra_no" name="suburra" value="no" {% if paciente.suburra == 'no' %}checked{% endif %}>
+                    <label for="suburra_no">No</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="suburra_pendiente" name="suburra" value="pendiente" {% if not paciente.suburra or paciente.suburra == 'pendiente' %}checked{% endif %}>
+                    <label for="suburra_pendiente">Pendiente</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Materia Alba -->
+        <div class="pregunta-item">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Materia Alba:</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="radio" id="materia_alba_si" name="materia_alba" value="si" {% if paciente.materia_alba == 'si' %}checked{% endif %}>
+                    <label for="materia_alba_si">Sí</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="materia_alba_no" name="materia_alba" value="no" {% if paciente.materia_alba == 'no' %}checked{% endif %}>
+                    <label for="materia_alba_no">No</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="materia_alba_pendiente" name="materia_alba" value="pendiente" {% if not paciente.materia_alba or paciente.materia_alba == 'pendiente' %}checked{% endif %}>
+                    <label for="materia_alba_pendiente">Pendiente</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Placa Bacteriana -->
+        <div class="pregunta-item">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Placa Bacteriana:</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="radio" id="placa_bacteriana_si" name="placa_bacteriana" value="si" {% if paciente.placa_bacteriana == 'si' %}checked{% endif %}>
+                    <label for="placa_bacteriana_si">Sí</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="placa_bacteriana_no" name="placa_bacteriana" value="no" {% if paciente.placa_bacteriana == 'no' %}checked{% endif %}>
+                    <label for="placa_bacteriana_no">No</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="placa_bacteriana_pendiente" name="placa_bacteriana" value="pendiente" {% if not paciente.placa_bacteriana or paciente.placa_bacteriana == 'pendiente' %}checked{% endif %}>
+                    <label for="placa_bacteriana_pendiente">Pendiente</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tártaro -->
+        <div class="pregunta-item">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Tártaro:</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="radio" id="tartaro_si" name="tartaro" value="si" {% if paciente.tartaro == 'si' %}checked{% endif %}>
+                    <label for="tartaro_si">Sí</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="tartaro_no" name="tartaro" value="no" {% if paciente.tartaro == 'no' %}checked{% endif %}>
+                    <label for="tartaro_no">No</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="tartaro_pendiente" name="tartaro" value="pendiente" {% if not paciente.tartaro or paciente.tartaro == 'pendiente' %}checked{% endif %}>
+                    <label for="tartaro_pendiente">Pendiente</label>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Halitosis -->
+        <div class="pregunta-item">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Halitosis:</label>
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input type="radio" id="halitosis_si" name="halitosis" value="si" {% if paciente.halitosis == 'si' %}checked{% endif %}>
+                    <label for="halitosis_si">Sí</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="halitosis_no" name="halitosis" value="no" {% if paciente.halitosis == 'no' %}checked{% endif %}>
+                    <label for="halitosis_no">No</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="halitosis_pendiente" name="halitosis" value="pendiente" {% if not paciente.halitosis or paciente.halitosis == 'pendiente' %}checked{% endif %}>
+                    <label for="halitosis_pendiente">Pendiente</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+         <!-- BOTONES DE ACCIÓN -->
+        <div class="btn-container">
+            <button type="submit" class="btn-guardar">Guardar Cambios</button>
+            <a href="{% url 'añadir_informacion' paciente.id %}" class="btn-añadir">
+                Añadir Información
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+function toggleDescripcion(tipo, valor) {
+    const descElement = document.getElementById(tipo + '_desc');
+    if (valor === 'si') {
+        descElement.classList.add('visible');
+    } else {
+        descElement.classList.remove('visible');
+    }
+}
+
+// Inicializar el estado de los campos condicionales
+document.addEventListener('DOMContentLoaded', function() {
+    const preguntasMedicas = ['tratamiento_medico', 'medicamentos', 'alergias', 'intervencion_quirurgica', 'reaccion_anestecia', 'hemorragia_exodoncia', 'alteraciones_cicatrizacion', 'embarazada'];
+    
+    preguntasMedicas.forEach(pregunta => {
+        const radioSeleccionado = document.querySelector(`input[name="${pregunta}"]:checked`);
+        if (radioSeleccionado) {
+            toggleDescripcion(pregunta, radioSeleccionado.value);
+        }
+    });
+});
+</script>
+{% endblock %}

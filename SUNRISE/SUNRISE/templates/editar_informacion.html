@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    
+    h2 {
+        color: #3498db;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .campo {
+        margin-bottom: 20px;
+    }
+    
+    .campo label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .campo input,
+    .campo textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+    
+    .campo textarea {
+        resize: vertical;
+        min-height: 150px;
+    }
+    
+    .campo-fotos {
+        border: 2px dashed #3498db;
+        padding: 20px;
+        border-radius: 8px;
+        background: #f8fdfb;
+    }
+    
+    .btn-submit {
+        background-color: #3498db;
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+        transition: background 0.3s;
+    }
+    
+    .btn-submit:hover {
+        background-color: #3498db;
+    }
+    
+    .volver {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .volver a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .info-text {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    .galeria-fotos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 10px;
+    }
+    
+    .foto-item {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .foto-img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border: 2px solid #3498db;
+    }
+    
+    .btn-eliminar-foto {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+    }
+    
+    .btn-eliminar-foto:hover {
+        background: #c0392b;
+        transform: scale(1.1);
+    }
+    
+    .preview-fotos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .preview-item {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 2px solid #f39c12;
+    }
+    
+    .seccion-fotos {
+        margin-bottom: 30px;
+    }
+    
+    .seccion-titulo {
+        color: #3498db;
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 5px;
+    }
+    
+    .btn-eliminar-info {
+        background-color: #e74c3c;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .btn-eliminar-info:hover {
+        background-color: #c0392b;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Editar: {{ informacion.titulo }}</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="campo">
+            <label for="titulo">Título de la información:</label>
+            <input type="text" id="titulo" name="titulo" value="{{ informacion.titulo }}" required>
+        </div>
+        
+        <div class="campo">
+            <label for="descripcion">Descripción:</label>
+            <textarea id="descripcion" name="descripcion" required>{{ informacion.descripcion }}</textarea>
+        </div>
+        
+        <!-- Sección de Fotos Actuales -->
+        <div class="seccion-fotos">
+            <h3 class="seccion-titulo">Fotos Actuales</h3>
+            {% if informacion.fotos.all %}
+                <div class="galeria-fotos">
+                    {% for foto in informacion.fotos.all %}
+                    <div class="foto-item">
+                        <img src="{{ foto.imagen.url }}" alt="Foto de la información" class="foto-img">
+                        <button type="button" class="btn-eliminar-foto" 
+                                onclick="eliminarFoto({{ foto.id }}, '{{ informacion.titulo }}')">
+                            ×
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="info-text">No hay fotos registradas</div>
+            {% endif %}
+        </div>
+        
+        <!-- Sección para Agregar Nuevas Fotos -->
+        <div class="campo campo-fotos">
+            <label for="nuevas_fotos">Agregar más fotos:</label>
+            <input type="file" id="nuevas_fotos" name="nuevas_fotos" multiple accept="image/*">
+            <div class="info-text">Puedes seleccionar múltiples fotos adicionales</div>
+            <div class="preview-fotos" id="preview-container"></div>
+        </div>
+        
+        <button type="submit" class="btn-submit">Guardar Cambios</button>
+    </form>
+    
+    <!-- Botón para eliminar toda la información -->
+        <!-- Botón para eliminar toda la información -->
+    <form method="post" action="{% url 'eliminar_informacion' informacion.id %}" id="form-eliminar-info">
+        {% csrf_token %}
+        <button type="button" class="btn-eliminar-info" id="btn-eliminar-info">
+            Eliminar esta Información
+        </button>
+    </form>
+    
+    <div class="volver">
+        <a href="{% url 'paciente_detalle' informacion.paciente.id %}">← Volver al Paciente</a>
+    </div>
+</div>
+
+<script>
+document.getElementById('nuevas_fotos').addEventListener('change', function(e) {
+    const previewContainer = document.getElementById('preview-container');
+    previewContainer.innerHTML = '';
+    
+    const files = e.target.files;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'preview-item';
+            previewContainer.appendChild(img);
+        }
+        
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('nuevas_fotos').addEventListener('change', function(e) {
+    const previewContainer = document.getElementById('preview-container');
+    previewContainer.innerHTML = '';
+    
+    const files = e.target.files;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'preview-item';
+            previewContainer.appendChild(img);
+        }
+        
+        reader.readAsDataURL(file);
+    }
+});
+
+function eliminarFoto(fotoId, tituloInformacion) {
+    mostrarConfirmacionEliminar(
+        'Eliminar Foto',
+        `¿Estás seguro de que quieres eliminar esta foto de "<strong>${tituloInformacion}</strong>"?`,
+        function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/informacion/foto/' + fotoId + '/eliminar/';
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    );
+}
+
+// FUNCIÓN PARA MENSAJE DE CONFIRMACIÓN ELEGANTE
+function mostrarConfirmacionEliminar(titulo, mensaje, callback) {
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Crear modal de confirmación
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transform: scale(0.9);
+        animation: scaleIn 0.3s ease forwards;
+        overflow: hidden;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: #3498db; padding: 20px; text-align: center;">
+            <h3 style="margin: 0; color: white; font-size: 1.3rem; font-weight: bold;">
+                ${titulo}
+            </h3>
+        </div>
+        <div style="padding: 25px; text-align: center;">
+            <div style="font-size: 1.1rem; color: #333; line-height: 1.5; margin-bottom: 25px;">
+                ${mensaje}
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="btnCancelarConfirm" style="
+                    padding: 12px 25px;
+                    background: #95a5a6;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 1rem;
+                    min-width: 100px;
+                " onmouseover="this.style.background='#7f8c8d'" onmouseout="this.style.background='#95a5a6'">
+                    Cancelar
+                </button>
+                <button id="btnAceptarConfirm" style="
+                    padding: 12px 25px;
+                    background: #e74c3c;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 1rem;
+                    min-width: 100px;
+                " onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    // Eventos de los botones
+    document.getElementById('btnAceptarConfirm').addEventListener('click', function() {
+        callback();
+        overlay.remove();
+        document.body.style.overflow = 'auto';
+    });
+    
+    document.getElementById('btnCancelarConfirm').addEventListener('click', function() {
+        overlay.remove();
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Cerrar al hacer clic fuera del modal
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.remove();
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+// Agregar animaciones CSS
+if (!document.querySelector('#animaciones-custom')) {
+    const style = document.createElement('style');
+    style.id = 'animaciones-custom';
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Mejorar el formulario de eliminar información completa
+document.querySelector('.btn-eliminar-info').addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    mostrarConfirmacionEliminar(
+        'Eliminar Información',
+        `¿Estás seguro de que quieres eliminar completamente "<strong>{{ informacion.titulo }}</strong>"?<br><br>Esta acción no se puede deshacer.`,
+        function() {
+            document.querySelector('form[action="{% url 'eliminar_informacion' informacion.id %}"]').submit();
+        }
+    );
+});
+</script>
+{% endblock %}

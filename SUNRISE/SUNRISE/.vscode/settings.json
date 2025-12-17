@@ -1,0 +1,4 @@
+{
+    "python.defaultInterpreterPath": "./dent/Scripts/python.exe",
+    "python.analysis.extraPaths": ["./dent/Lib/site-packages"]
+}

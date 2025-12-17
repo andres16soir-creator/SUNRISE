@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    h2 {
+        color: #007a57;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .campo {
+        margin-bottom: 20px;
+    }
+    .campo label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    .campo input,
+    .campo select,
+    .campo textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+    .campo textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    .horas-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    button {
+        background-color: #007a57;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+    }
+    button:hover {
+        background-color: #069467;
+    }
+    .volver {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .volver a {
+        color: #007a57;
+        text-decoration: none;
+    }
+    .error {
+        background-color: #ffe6e6;
+        color: #d63031;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .info-cita {
+        background-color: #e8f5e8;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #007a57;
+    }
+    .duracion-info {
+        background: #f8fdfb;
+        padding: 10px;
+        border-radius: 6px;
+        text-align: center;
+        margin-top: 10px;
+        border: 1px solid #007a57;
+        font-weight: bold;
+        color: #007a57;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Editar Cita</h2>
+    
+    <div class="info-cita">
+        <strong>Fecha:</strong> {{ cita.fecha|date:"d/m/Y" }}<br>
+        <strong>Paciente actual:</strong> {{ cita.paciente.nombre }} {{ cita.paciente.apellido }}
+    </div>
+    
+    {% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <form method="post" id="citaForm">
+        {% csrf_token %}
+        
+        <div class="campo">
+            <label for="paciente">Paciente:</label>
+            <select id="paciente" name="paciente" required>
+                <option value="">Seleccionar paciente...</option>
+                {% for paciente in pacientes %}
+                <option value="{{ paciente.id }}" {% if paciente.id == cita.paciente.id %}selected{% endif %}>
+                    {{ paciente.nombre }} {{ paciente.apellido }} - CI: {{ paciente.ci }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="campo">
+            <label>Horario de la cita:</label>
+            <div class="horas-container">
+                <div>
+                    <label for="hora_inicio">Hora inicio:</label>
+                    <input type="time" id="hora_inicio" name="hora_inicio" 
+                           value="{{ cita.hora_inicio|time:'H:i' }}" min="08:00" max="18:00" required 
+                           onchange="calcularDuracion()">
+                </div>
+                <div>
+                    <label for="hora_fin">Hora fin:</label>
+                    <input type="time" id="hora_fin" name="hora_fin" 
+                           value="{{ cita.hora_fin|time:'H:i' }}" min="08:00" max="18:00" required 
+                           onchange="calcularDuracion()">
+                </div>
+            </div>
+            <div id="duracion-info" class="duracion-info">
+                Duración: <span id="duracion-text">Calculando...</span>
+            </div>
+        </div>
+        
+        <div class="campo">
+            <label for="dentista">Dentista:</label>
+            <select id="dentista" name="dentista" required>
+                <option value="">Seleccionar dentista...</option>
+                <option value="Dr. Gustavo" {% if cita.dentista == 'Dr. Gustavo' %}selected{% endif %}>Dr. Gustavo</option>
+                <option value="Dra. Albandrea" {% if cita.dentista == 'Dra. Albandrea' %}selected{% endif %}>Dra. Albandrea</option>
+            </select>
+        </div>
+        
+        <div class="campo">
+            <label for="motivo">Motivo de la cita:</label>
+            <textarea id="motivo" name="motivo" placeholder="Descripción del motivo de la consulta...">{{ cita.motivo }}</textarea>
+        </div>
+        
+        <button type="submit">Guardar Cambios</button>
+    </form>
+    
+    <div class="volver">
+        <a href="{% url 'citas_dia' cita.fecha.year cita.fecha.month cita.fecha.day %}">← Volver al día</a>
+    </div>
+</div>
+
+<script>
+// Función para calcular duración entre horas
+function calcularDuracion(horaInicio, horaFin) {
+    const inicio = new Date(`2000-01-01T${horaInicio}`);
+    const fin = new Date(`2000-01-01T${horaFin}`);
+    const duracionMs = fin - inicio;
+    const duracionMinutos = Math.floor(duracionMs / (1000 * 60));
+    
+    if (duracionMinutos < 60) {
+        return `${duracionMinutos} minutos`;
+    } else {
+        const horas = Math.floor(duracionMinutos / 60);
+        const minutos = duracionMinutos % 60;
+        return minutos > 0 ? `${horas}h ${minutos}min` : `${horas} horas`;
+    }
+}
+
+// Función para calcular y mostrar la duración actual
+function calcularDuracionActual() {
+    const horaInicio = document.getElementById('hora_inicio').value;
+    const horaFin = document.getElementById('hora_fin').value;
+    const duracionInfo = document.getElementById('duracion-info');
+    const duracionText = document.getElementById('duracion-text');
+    
+    if (horaInicio && horaFin) {
+        const inicio = new Date(`2000-01-01T${horaInicio}`);
+        const fin = new Date(`2000-01-01T${horaFin}`);
+        
+        if (fin > inicio) {
+            const duracion = calcularDuracion(horaInicio, horaFin);
+            duracionText.textContent = duracion;
+            duracionInfo.style.display = 'block';
+        } else {
+            duracionText.textContent = 'Hora fin debe ser posterior';
+            duracionInfo.style.display = 'block';
+            duracionInfo.style.background = '#ffe6e6';
+            duracionInfo.style.color = '#d63031';
+            duracionInfo.style.borderColor = '#d63031';
+        }
+    } else {
+        duracionInfo.style.display = 'none';
+    }
+}
+
+// Calcular duración inicial al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Calcular duración inicial con los valores actuales de la cita
+    const horaInicioActual = document.getElementById('hora_inicio').value;
+    const horaFinActual = document.getElementById('hora_fin').value;
+    
+    if (horaInicioActual && horaFinActual) {
+        const duracion = calcularDuracion(horaInicioActual, horaFinActual);
+        document.getElementById('duracion-text').textContent = duracion;
+    }
+    
+    // Configurar el evento para cambios futuros
+    window.calcularDuracion = calcularDuracionActual;
+    
+    // También calcular cuando cambien los campos
+    document.getElementById('hora_inicio').addEventListener('change', calcularDuracionActual);
+    document.getElementById('hora_fin').addEventListener('change', calcularDuracionActual);
+});
+
+// Validación del formulario
+document.getElementById('citaForm').addEventListener('submit', function(e) {
+    const horaInicio = document.getElementById('hora_inicio').value;
+    const horaFin = document.getElementById('hora_fin').value;
+    const dentista = document.getElementById('dentista').value;
+    
+    if (!dentista) {
+        e.preventDefault();
+        alert('Por favor, seleccione un dentista');
+        return;
+    }
+    
+    if (horaInicio && horaFin) {
+        const inicio = new Date(`2000-01-01T${horaInicio}`);
+        const fin = new Date(`2000-01-01T${horaFin}`);
+        
+        if (fin <= inicio) {
+            e.preventDefault();
+            alert('La hora de fin debe ser posterior a la hora de inicio');
+            return;
+        }
+    }
+});
+</script>
+{% endblock %}

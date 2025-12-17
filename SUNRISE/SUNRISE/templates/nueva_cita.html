@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    h2 {
+        color: #07AB78;
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    .campo {
+        margin-bottom: 20px;
+    }
+    .campo label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    .campo input,
+    .campo select,
+    .campo textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+    .campo textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    .horas-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    button {
+        background-color: #07AB78;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+    }
+    button:hover {
+        background-color: #069467;
+    }
+    .volver {
+        text-align: center;
+        margin-top: 20px;
+    }
+    .volver a {
+        color: #07AB78;
+        text-decoration: none;
+    }
+    .error {
+        background-color: #ffe6e6;
+        color: #d63031;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    /* Estilos para el autocompletado */
+    .autocomplete-container {
+        position: relative;
+    }
+    .suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ccc;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+    .suggestion-item {
+        padding: 10px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+    }
+    .suggestion-item:hover {
+        background-color: #f0f9f5;
+    }
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    .paciente-info {
+        display: flex;
+        justify-content: space-between;
+    }
+    .paciente-nombre {
+        font-weight: bold;
+    }
+    .paciente-ci {
+        color: #666;
+    }
+    .nuevo-paciente-hint {
+        background-color: #e8f5e8;
+        font-style: italic;
+        color: #07AB78;
+    }
+    
+    .duracion-info {
+        background: #f8fdfb;
+        padding: 10px;
+        border-radius: 6px;
+        text-align: center;
+        margin-top: 10px;
+        border: 1px solid #07AB78;
+        font-weight: bold;
+        color: #07AB78;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Nueva Cita para el {{ fecha|date:"d/m/Y" }}</h2>
+    
+    {% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <form method="post" id="citaForm">
+        {% csrf_token %}
+        
+        <div class="campo">
+            <label for="paciente_busqueda">Buscar Paciente:</label>
+            <div class="autocomplete-container">
+                <input type="text" id="paciente_busqueda" name="paciente_busqueda" 
+                       placeholder="Escriba nombre, apellido o CI del paciente..." 
+                       autocomplete="off">
+                <div id="suggestions" class="suggestions"></div>
+            </div>
+            <input type="hidden" id="paciente_id" name="paciente_id">
+            <small style="color: #666;">Si el paciente no existe, se creará automáticamente con los datos ingresados</small>
+        </div>
+        
+        <div class="campo">
+            <label>Horario de la cita:</label>
+            <div class="horas-container">
+                <div>
+                    <label for="hora_inicio">Hora inicio:</label>
+                    <input type="time" id="hora_inicio" name="hora_inicio" min="08:00" max="18:00" required 
+                           onchange="calcularDuracion()">
+                </div>
+                <div>
+                    <label for="hora_fin">Hora fin:</label>
+                    <input type="time" id="hora_fin" name="hora_fin" min="08:00" max="18:00" required 
+                           onchange="calcularDuracion()">
+                </div>
+            </div>
+            <div id="duracion-info" class="duracion-info" style="display: none;">
+                Duración: <span id="duracion-text">0</span> minutos
+            </div>
+        </div>
+        
+        <div class="campo">
+            <label for="dentista">Dentista:</label>
+            <select id="dentista" name="dentista" required>
+                <option value="">Seleccionar dentista...</option>
+                <option value="Dr. Gustavo">Dr. Gustavo</option>
+                <option value="Dra. Albandrea">Dra. Albandrea</option>
+            </select>
+        </div>
+        
+        <div class="campo">
+            <label for="motivo">Motivo de la cita:</label>
+            <textarea id="motivo" name="motivo" placeholder="Descripción del motivo de la consulta..."></textarea>
+        </div>
+        
+        <button type="submit" id="submitBtn">Agendar Cita</button>
+    </form>
+    
+    <div class="volver">
+        <a href="{% url 'citas_dia' fecha.year fecha.month fecha.day %}">← Volver al día</a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const busquedaInput = document.getElementById('paciente_busqueda');
+    const pacienteIdInput = document.getElementById('paciente_id');
+    const suggestionsDiv = document.getElementById('suggestions');
+    const submitBtn = document.getElementById('submitBtn');
+    const citaForm = document.getElementById('citaForm');
+    
+    let timeoutId;
+    
+    // Función para buscar pacientes
+    function buscarPacientes(query) {
+        if (query.length < 2) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+        
+        fetch(`/buscar-pacientes/?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                mostrarSugerencias(data.pacientes, query);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+    
+    // Función para mostrar sugerencias
+    function mostrarSugerencias(pacientes, query) {
+        suggestionsDiv.innerHTML = '';
+        
+        if (pacientes.length > 0) {
+            pacientes.forEach(paciente => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.innerHTML = `
+                    <div class="paciente-info">
+                        <span class="paciente-nombre">${paciente.nombre} ${paciente.apellido}</span>
+                        <span class="paciente-ci">CI: ${paciente.ci}</span>
+                    </div>
+                `;
+                div.addEventListener('click', function() {
+                    busquedaInput.value = `${paciente.nombre} ${paciente.apellido}`;
+                    pacienteIdInput.value = paciente.id;
+                    suggestionsDiv.style.display = 'none';
+                    submitBtn.disabled = false;
+                });
+                suggestionsDiv.appendChild(div);
+            });
+        }
+        
+        // Agregar opción para crear nuevo paciente
+        const nuevoDiv = document.createElement('div');
+        nuevoDiv.className = 'suggestion-item nuevo-paciente-hint';
+        nuevoDiv.innerHTML = `Crear nuevo paciente: "${query}"`;
+        nuevoDiv.addEventListener('click', function() {
+            pacienteIdInput.value = ''; // Vacío indica nuevo paciente
+            submitBtn.disabled = false;
+            suggestionsDiv.style.display = 'none';
+        });
+        suggestionsDiv.appendChild(nuevoDiv);
+        
+        suggestionsDiv.style.display = 'block';
+    }
+    
+    // Event listeners
+    busquedaInput.addEventListener('input', function() {
+        clearTimeout(timeoutId);
+        const query = this.value.trim();
+        
+        if (query) {
+            timeoutId = setTimeout(() => buscarPacientes(query), 300);
+        } else {
+            suggestionsDiv.style.display = 'none';
+            pacienteIdInput.value = '';
+            submitBtn.disabled = true;
+        }
+    });
+    
+    // Ocultar sugerencias al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!busquedaInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.style.display = 'none';
+        }
+    });
+    
+    // Validar formulario antes de enviar
+    citaForm.addEventListener('submit', function(e) {
+        const pacienteId = pacienteIdInput.value;
+        const busqueda = busquedaInput.value.trim();
+        const horaInicio = document.getElementById('hora_inicio').value;
+        const horaFin = document.getElementById('hora_fin').value;
+        const dentista = document.getElementById('dentista').value;
+        
+        if (!pacienteId && !busqueda) {
+            e.preventDefault();
+            alert('Por favor, seleccione o ingrese un paciente');
+            return;
+        }
+        
+        // Validar que se haya seleccionado un dentista
+        if (!dentista) {
+            e.preventDefault();
+            alert('Por favor, seleccione un dentista');
+            return;
+        }
+        
+        // Validar que hora fin sea mayor que hora inicio
+        if (horaInicio && horaFin && horaFin <= horaInicio) {
+            e.preventDefault();
+            alert('La hora de fin debe ser posterior a la hora de inicio');
+            return;
+        }
+        
+        // Si no hay pacienteId pero hay texto de búsqueda, es un nuevo paciente
+        if (!pacienteId && busqueda) {
+            // Permitir el envío - la vista manejará la creación del paciente
+            submitBtn.disabled = false;
+        }
+    });
+    
+    // Deshabilitar botón inicialmente
+    submitBtn.disabled = true;
+});
+
+// Función para calcular y mostrar la duración
+function calcularDuracion() {
+    const horaInicio = document.getElementById('hora_inicio').value;
+    const horaFin = document.getElementById('hora_fin').value;
+    const duracionInfo = document.getElementById('duracion-info');
+    const duracionText = document.getElementById('duracion-text');
+    
+    if (horaInicio && horaFin) {
+        const inicio = new Date(`2000-01-01T${horaInicio}`);
+        const fin = new Date(`2000-01-01T${horaFin}`);
+        
+        if (fin > inicio) {
+            const duracionMs = fin - inicio;
+            const duracionMinutos = Math.floor(duracionMs / (1000 * 60));
+            
+            duracionText.textContent = duracionMinutos;
+            duracionInfo.style.display = 'block';
+        } else {
+            duracionInfo.style.display = 'none';
+        }
+    } else {
+        duracionInfo.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

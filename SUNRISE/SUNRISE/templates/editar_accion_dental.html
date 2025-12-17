@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    
+    h2 {
+        color: #3498db;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .campo {
+        margin-bottom: 20px;
+    }
+    
+    .campo label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .campo input,
+    .campo textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+    
+    .campo textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+    
+    .botones-accion {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+    
+    .btn-guardar {
+        background-color: #3498db;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        flex: 1;
+        transition: background 0.3s;
+    }
+    
+    .btn-guardar:hover {
+        background-color: #2980b9;
+    }
+    
+    .btn-cancelar {
+        background-color: #e74c3c;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        flex: 1;
+        transition: background 0.3s;
+        text-decoration: none;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-cancelar:hover {
+        background-color: #c0392b;
+    }
+</style>
+
+<div class="form-container">
+    <h2>EDITAR ACCIÓN - DIENTE #{{ accion.diente_numero }}</h2>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="campo">
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo" name="titulo" value="{{ accion.titulo }}" required>
+        </div>
+        
+        <div class="campo">
+            <label for="descripcion">Descripción:</label>
+            <textarea id="descripcion" name="descripcion" required>{{ accion.descripcion }}</textarea>
+        </div>
+        
+        <div class="botones-accion">
+            <button type="submit" class="btn-guardar">Guardar Cambios</button>
+            <a href="{% url 'lista_acciones_dental' accion.paciente.id accion.diente_numero %}" class="btn-cancelar">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
