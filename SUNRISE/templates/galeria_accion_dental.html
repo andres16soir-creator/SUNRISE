@@ -1,0 +1,538 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .galeria-container {
+        max-width: 900px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    
+    h2 {
+        color: #238d15ff;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .seccion-fotos {
+        margin-bottom: 40px;
+        padding: 20px;
+        background: #f8fdfb;
+        border-radius: 8px;
+        border: 2px solid;
+    }
+    
+    .seccion-antes {
+        border-color: #3498db;
+    }
+    
+    .seccion-despues {
+        border-color: #27ae60;
+    }
+    
+    .seccion-titulo {
+        color: #333;
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .form-subir {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 6px;
+        border: 2px dashed #ccc;
+        text-align: center;
+    }
+    
+    .file-input-container {
+        display: inline-block;
+        position: relative;
+        margin: 10px 0;
+    }
+    
+    .file-input {
+        position: absolute;
+        left: -9999px;
+    }
+    
+    .file-input-label {
+        display: inline-block;
+        background: #07AB78;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+    
+    .file-input-label:hover {
+        background: #069467;
+    }
+    
+    .file-name {
+        display: block;
+        margin-top: 8px;
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .galeria-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+    }
+    
+    .foto-item {
+        position: relative;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
+        transition: transform 0.3s;
+    }
+    
+    .foto-item:hover {
+        transform: scale(1.05);
+    }
+    
+    .foto-img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+    }
+    
+    .btn-eliminar-foto {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.3s;
+    }
+    
+    .btn-eliminar-foto:hover {
+        background: #c0392b;
+        transform: scale(1.1);
+    }
+    
+    .btn-mostrar {
+        background: #e67e22;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+        transition: background 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+    
+    .btn-mostrar:hover {
+        background: #d35400;
+    }
+    
+    .btn-volver {
+        background: #3498db;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 20px;
+        text-align: center;
+        transition: background 0.3s;
+    }
+    
+    .btn-volver:hover {
+        background: #2980b9;
+    }
+    
+    .sin-fotos {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 20px;
+        background: white;
+        border-radius: 6px;
+        border: 1px dashed #ccc;
+    }
+    
+    .contador-fotos {
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 10px;
+    }
+    
+    .mensaje-subida {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid;
+        display: none;
+    }
+    
+    .mensaje-cargando {
+        background: #fff3cd;
+        color: #856404;
+        border-color: #ffeaa7;
+    }
+    
+    .mensaje-exito {
+        background: #d4f8e8;
+        color: #27ae60;
+        border-color: #27ae60;
+    }
+
+    /* MEJORAR MENSAJE DE CONFIRMACIÓN ELIMINAR */
+.confirmacion-eliminar {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+    font-family: Arial, sans-serif;
+    max-width: 400px;
+    text-align: center;
+}
+
+.confirmacion-eliminar .alert {
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.confirmacion-eliminar button {
+    background: white;
+    color: #e74c3c;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: all 0.3s;
+}
+
+.confirmacion-eliminar button:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+/* ANIMACIONES PARA SWEETALERT */
+.animate__animated {
+    animation-duration: 0.5s;
+}
+
+.animate__fadeInDown {
+    animation-name: fadeInDown;
+}
+
+.animate__fadeOutUp {
+    animation-name: fadeOutUp;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -20px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes fadeOutUp {
+    from {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+    to {
+        opacity: 0;
+        transform: translate3d(0, -20px, 0);
+    }
+}
+
+/* ESTILOS PARA EL BOTÓN ELIMINAR MIENTRAS SE CARGA */
+.btn-eliminar-foto.eliminando {
+    background: #95a5a6;
+    cursor: not-allowed;
+}
+</style>
+
+<div class="galeria-container">
+    <h2>{{ accion.titulo }} (Diente #{{ accion.diente_numero }})</h2>
+    
+    <!-- SECCIÓN FOTOS ANTES -->
+    <div class="seccion-fotos seccion-antes">
+        <h3 class="seccion-titulo">FOTOS ANTES</h3>
+        
+        <!-- FORMULARIO SEPARADO PARA ANTES -->
+        <form method="post" enctype="multipart/form-data" id="formAntes" class="form-subir">
+            {% csrf_token %}
+            <input type="hidden" name="tipo_foto" value="antes">
+            <div class="file-input-container">
+                <label for="fotos_antes" class="file-input-label">
+    <img src="{% static 'images/menu5.png' %}" alt="Carpeta" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+    Elegir archivos ANTES
+</label>
+                <input type="file" id="fotos_antes" name="fotos_antes" multiple accept="image/*" class="file-input" 
+                       onchange="mostrarNombreArchivos('fotos_antes', 'nombre-archivos-antes', 'formAntes')">
+            </div>
+            <span id="nombre-archivos-antes" class="file-name"></span>
+            <div id="mensaje-subida-antes" class="mensaje-subida"></div>
+        </form>
+        
+        {% if accion.fotos_antes.all %}
+            <div class="galeria-grid">
+                {% for foto in accion.fotos_antes.all %}
+                <div class="foto-item">
+    <img src="{{ foto.imagen.url }}" alt="Foto antes {{ forloop.counter }}" class="foto-img">
+    <button type="button" class="btn-eliminar-foto" onclick="confirmarEliminacion({{ foto.id }}, 'antes')">×</button>
+</div>
+                {% endfor %}
+            </div>
+            <div class="contador-fotos">
+                Total fotos ANTES: {{ accion.fotos_antes.all|length }}
+            </div>
+        {% else %}
+            <div class="sin-fotos">No hay fotos ANTES registradas</div>
+        {% endif %}
+    </div>
+    
+    <!-- SECCIÓN FOTOS DESPUÉS -->
+    <div class="seccion-fotos seccion-despues">
+        <h3 class="seccion-titulo">FOTOS DESPUÉS</h3>
+        
+        <!-- FORMULARIO SEPARADO PARA DESPUÉS -->
+        <form method="post" enctype="multipart/form-data" id="formDespues" class="form-subir">
+            {% csrf_token %}
+            <input type="hidden" name="tipo_foto" value="despues">
+            <div class="file-input-container">
+                <label for="fotos_despues" class="file-input-label">
+    <img src="{% static 'images/menu5.png' %}" alt="Carpeta" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+    Elegir archivos DESPUÉS
+</label>
+                <input type="file" id="fotos_despues" name="fotos_despues" multiple accept="image/*" class="file-input" 
+                       onchange="mostrarNombreArchivos('fotos_despues', 'nombre-archivos-despues', 'formDespues')">
+            </div>
+            <span id="nombre-archivos-despues" class="file-name"></span>
+            <div id="mensaje-subida-despues" class="mensaje-subida"></div>
+        </form>
+        
+        {% if accion.fotos_despues.all %}
+            <div class="galeria-grid">
+                {% for foto in accion.fotos_despues.all %}
+                <div class="foto-item">
+    <img src="{{ foto.imagen.url }}" alt="Foto después {{ forloop.counter }}" class="foto-img">
+    <button type="button" class="btn-eliminar-foto" onclick="confirmarEliminacion({{ foto.id }}, 'despues')">×</button>
+</div>
+                {% endfor %}
+            </div>
+            <div class="contador-fotos">
+                Total fotos DESPUÉS: {{ accion.fotos_despues.all|length }}
+            </div>
+        {% else %}
+            <div class="sin-fotos">No hay fotos DESPUÉS registradas</div>
+        {% endif %}
+    </div>
+    
+    <!-- BOTÓN MOSTRAR GALERÍA COMPLETA -->
+    {% if accion.fotos_antes.all or accion.fotos_despues.all %}
+    <a href="{% url 'mostrar_galeria_completa' accion.id %}" class="btn-mostrar">MOSTRAR</a>
+    {% endif %}
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{% url 'lista_acciones_dental' accion.paciente.id accion.diente_numero %}" class="btn-volver">← Volver a Acciones</a>
+    </div>
+</div>
+
+<script>
+    function mostrarNombreArchivos(inputId, spanId, formId) {
+        console.log(`Función llamada para: ${inputId} en formulario: ${formId}`);
+        
+        const input = document.getElementById(inputId);
+        const span = document.getElementById(spanId);
+        const form = document.getElementById(formId);
+        const mensajeId = inputId === 'fotos_antes' ? 'mensaje-subida-antes' : 'mensaje-subida-despues';
+        const mensaje = document.getElementById(mensajeId);
+        
+        console.log(`Archivos seleccionados en ${inputId}: ${input.files.length}`);
+        
+        if (input.files.length > 0) {
+            const nombres = Array.from(input.files).map(file => file.name).join(', ');
+            span.textContent = `Archivos seleccionados: ${nombres} (${input.files.length} archivos)`;
+            
+            // Mostrar mensaje de "Subiendo..."
+            if (mensaje) {
+                mensaje.textContent = 'Subiendo fotos...';
+                mensaje.className = 'mensaje-subida mensaje-cargando';
+                mensaje.style.display = 'block';
+                console.log(`Mostrando mensaje de subida para: ${inputId}`);
+            }
+            
+            // Enviar el formulario específico después de un breve delay
+            setTimeout(() => {
+                console.log(`Enviando formulario: ${formId} para: ${inputId}`);
+                form.submit();
+            }, 1000);
+        } else {
+            span.textContent = '';
+            console.log(`No se seleccionaron archivos para: ${inputId}`);
+        }
+    }
+
+    // Mostrar mensaje de subida si hay parámetro en la URL
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Verificando parámetros de URL...');
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (urlParams.get('subida') === 'exito') {
+            console.log('Parámetro de subida exitosa encontrado');
+            
+            const mensajeAntes = document.getElementById('mensaje-subida-antes');
+            const mensajeDespues = document.getElementById('mensaje-subida-despues');
+            
+            // Determinar qué tipo de foto se subió basado en el parámetro adicional
+            const tipoSubido = urlParams.get('tipo') || 'ambos';
+            
+            if (tipoSubido === 'antes' || tipoSubido === 'ambos') {
+                if (mensajeAntes) {
+                    mensajeAntes.textContent = '¡Fotos ANTES subidas exitosamente!';
+                    mensajeAntes.className = 'mensaje-subida mensaje-exito';
+                    mensajeAntes.style.display = 'block';
+                    console.log('Mostrando mensaje de éxito para ANTES');
+                }
+            }
+            
+            if (tipoSubido === 'despues' || tipoSubido === 'ambos') {
+                if (mensajeDespues) {
+                    mensajeDespues.textContent = '¡Fotos DESPUÉS subidas exitosamente!';
+                    mensajeDespues.className = 'mensaje-subida mensaje-exito';
+                    mensajeDespues.style.display = 'block';
+                    console.log('Mostrando mensaje de éxito para DESPUÉS');
+                }
+            }
+            
+            // Ocultar mensajes después de 3 segundos
+            setTimeout(() => {
+                if (mensajeAntes) mensajeAntes.style.display = 'none';
+                if (mensajeDespues) mensajeDespues.style.display = 'none';
+                console.log('Ocultando mensajes de éxito');
+            }, 3000);
+        }
+    });
+
+    function confirmarEliminacion(tipo) {
+    return Swal.fire({
+        title: `¿Eliminar foto ${tipo}?`,
+        text: "Esta acción no se puede deshacer",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#95a5a6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: '#fff',
+        customClass: {
+            popup: 'confirmacion-eliminar'
+        }
+    }).then((result) => {
+        return result.isConfirmed;
+    });
+}
+function confirmarEliminacion(fotoId, tipo) {
+    // Primero verificar si SweetAlert2 está disponible
+    if (typeof Swal === 'undefined') {
+        console.error('SweetAlert2 no está cargado');
+        if (confirm(`¿Estás seguro de eliminar esta foto ${tipo.toUpperCase()}?`)) {
+            eliminarFoto(fotoId, tipo);
+        }
+        return;
+    }
+
+    Swal.fire({
+        title: `¿Eliminar foto ${tipo.toUpperCase()}?`,
+        text: "Esta acción no se puede deshacer",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#95a5a6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        background: '#fff',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            eliminarFoto(fotoId, tipo);
+        }
+    });
+}
+
+function eliminarFoto(fotoId, tipo) {
+    // Crear formulario dinámico para enviar la solicitud
+    const form = document.createElement('form');
+    form.method = 'POST';
+    
+    // Determinar la URL correcta según el tipo - USANDO EL PATRÓN CORRECTO
+    if (tipo === 'antes') {
+        form.action = `/accion-dental/foto-antes/${fotoId}/eliminar/`;
+    } else {
+        form.action = `/accion-dental/foto-despues/${fotoId}/eliminar/`;
+    }
+    
+    console.log(`🗑️ Enviando solicitud de eliminación a: ${form.action}`);
+    
+    // Agregar CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // Agregar al documento y enviar
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    body {
+        padding-bottom: 80px;
+        background: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .mostrar-container {
+        max-width: 1400px;
+        margin: 40px auto;
+        background: white;
+        padding: 0;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 80px;
+        border: 1px solid #e8f5f1;
+    }
+    
+    .header-mostrar {
+        background: linear-gradient(135deg, #007a57 0%, #07AB78 100%);
+        color: white;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .header-mostrar::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .titulo-mostrar {
+        font-size: 3rem;
+        font-weight: 800;
+        margin: 0;
+        position: relative;
+        text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        letter-spacing: -1px;
+        color: white;
+    }
+    
+    .contenido-principal {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 50px;
+        padding: 50px;
+        min-height: 600px;
+        background: white;
+    }
+    
+    .seccion-carrusel {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0, 122, 87, 0.1);
+        border: 2px solid #e8f5f1;
+    }
+    
+    .seccion-descripcion {
+        display: flex;
+        flex-direction: column;
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0, 122, 87, 0.1);
+        border: 2px solid #e8f5f1;
+    }
+    
+    .seccion-titulo {
+        color: #007a57;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        position: relative;
+        border-bottom: 3px solid #07AB78;
+    }
+    
+    .descripcion-texto {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        color: #2c3e50;
+        text-align: justify;
+        flex-grow: 1;
+        padding: 35px;
+        background: white;
+        border-radius: 16px;
+        border-left: 6px solid #007a57;
+        box-shadow: inset 0 2px 10px rgba(0, 122, 87, 0.05);
+        border: 1px solid #e8f5f1;
+        font-weight: 400;
+    }
+    
+    .descripcion-texto p {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+    
+    .descripcion-texto p:last-child {
+        margin-bottom: 0;
+    }
+    
+    .carrusel-container {
+        position: relative;
+        width: 100%;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        background: white;
+        aspect-ratio: 4/3;
+        border: 3px solid #e8f5f1;
+        min-height: 450px;
+    }
+    
+    .carrusel-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 18px;
+    }
+    
+    .carrusel-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+        object-fit: cover;
+        background: white;
+    }
+    
+    .carrusel-slide.active {
+        opacity: 1;
+    }
+    
+    .carrusel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: linear-gradient(135deg, #007a57 0%, #07AB78 100%);
+        color: white;
+        border: none;
+        padding: 18px 15px;
+        font-size: 1.8rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 50%;
+        width: 65px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 20px rgba(0, 122, 87, 0.4);
+        font-weight: bold;
+        z-index: 10;
+    }
+    
+    .carrusel-btn:hover {
+        background: linear-gradient(135deg, #069467 0%, #08c289 100%);
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 8px 25px rgba(0, 122, 87, 0.6);
+    }
+    
+    .carrusel-prev {
+        left: 25px;
+    }
+    
+    .carrusel-next {
+        right: 25px;
+    }
+    
+    .carrusel-indicators {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px 20px;
+        border-radius: 30px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .indicator {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.5);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    
+    .indicator.active {
+        background: #07AB78;
+        transform: scale(1.4);
+        box-shadow: 0 0 15px rgba(7, 171, 120, 0.8);
+        border-color: white;
+    }
+    
+    .indicator:hover {
+        background: rgba(255,255,255,0.8);
+        transform: scale(1.2);
+    }
+    
+    .volver-mostrar {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 40px;
+        border-top: 3px solid #e8f5f1;
+        grid-column: 1 / -1;
+    }
+    
+    .btn-volver-mostrar {
+        background: #007a57;
+        color: white;
+        padding: 15px 35px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border: 2px solid #007a57;
+        font-size: 1.1rem;
+    }
+    
+    .btn-volver-mostrar:hover {
+        background: #069467;
+        color: white;
+        border-color: #069467;
+    }
+    
+    .sin-fotos-mostrar {
+        text-align: center;
+        padding: 80px 40px;
+        color: #7f8c8d;
+        font-style: italic;
+        background: white;
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 1.3rem;
+        border: 3px dashed #bdc3c7;
+        min-height: 300px;
+    }
+    
+    .sin-fotos-mostrar::before {
+        content: "📷";
+        font-size: 4rem;
+        margin-bottom: 20px;
+        opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+        .contenido-principal {
+            grid-template-columns: 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .carrusel-container {
+            aspect-ratio: 16/9;
+            min-height: 300px;
+        }
+        
+        .mostrar-container {
+            margin: 20px auto 80px auto;
+        }
+        
+        body {
+            padding-bottom: 60px;
+        }
+        
+        .titulo-mostrar {
+            font-size: 2.2rem;
+        }
+        
+        .header-mostrar {
+            padding: 30px 20px;
+        }
+        
+        .carrusel-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.4rem;
+        }
+        
+        .seccion-carrusel,
+        .seccion-descripcion {
+            padding: 25px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mostrar-container">
+    <div class="header-mostrar">
+        <h1 class="titulo-mostrar">{{ tratamiento.titulo }}</h1>
+    </div>
+    
+    <div class="contenido-principal">
+        <!-- Sección izquierda: Carrusel de fotos -->
+        <div class="seccion-carrusel">
+            <h3 class="seccion-titulo">Galería de Resultados</h3>
+            {% if tratamiento.fotos.all %}
+                <div class="carrusel-container">
+                    <div class="carrusel-inner">
+                        {% for foto in tratamiento.fotos.all %}
+                        <img src="{{ foto.imagen.url }}" alt="Resultado del tratamiento {{ tratamiento.titulo }}" 
+                             class="carrusel-slide {% if forloop.first %}active{% endif %}"
+                             data-index="{{ forloop.counter0 }}">
+                        {% endfor %}
+                    </div>
+                    
+                    <button class="carrusel-btn carrusel-prev" onclick="cambiarSlide(-1)">
+                        ‹
+                    </button>
+                    <button class="carrusel-btn carrusel-next" onclick="cambiarSlide(1)">
+                        ›
+                    </button>
+                    
+                    <div class="carrusel-indicators" id="indicators">
+                        {% for foto in tratamiento.fotos.all %}
+                        <div class="indicator {% if forloop.first %}active{% endif %}" 
+                             onclick="mostrarSlide({{ forloop.counter0 }})" 
+                             data-index="{{ forloop.counter0 }}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="sin-fotos-mostrar">
+                    No hay imágenes disponibles para este tratamiento
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sección derecha: Descripción -->
+        <div class="seccion-descripcion">
+            <h3 class="seccion-titulo">Descripción del Tratamiento</h3>
+            <div class="descripcion-texto">
+                {{ tratamiento.descripcion|linebreaks }}
+            </div>
+        </div>
+        
+        <div class="volver-mostrar">
+            <a href="{% url 'tratamientos' %}" class="btn-volver-mostrar">← Volver a Tratamientos</a>
+        </div>
+    </div>
+</div>
+
+<script>
+let slideIndex = 0;
+const slides = document.getElementsByClassName("carrusel-slide");
+const indicators = document.getElementsByClassName("indicator");
+let autoSlideInterval;
+
+function mostrarSlide(n) {
+    for (let i = 0; i < slides.length; i++) {
+        slides[i].classList.remove("active");
+        indicators[i].classList.remove("active");
+    }
+    
+    slideIndex = n;
+    
+    if (slides[slideIndex]) {
+        slides[slideIndex].classList.add("active");
+        indicators[slideIndex].classList.add("active");
+    }
+}
+
+function cambiarSlide(n) {
+    const newIndex = (slideIndex + n + slides.length) % slides.length;
+    mostrarSlide(newIndex);
+}
+
+function iniciarCarruselAutomatico() {
+    autoSlideInterval = setInterval(() => {
+        cambiarSlide(1);
+    }, 5000);
+}
+
+function pausarCarrusel() {
+    clearInterval(autoSlideInterval);
+}
+
+function reanudarCarrusel() {
+    iniciarCarruselAutomatico();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const carrusel = document.querySelector('.carrusel-container');
+    if (carrusel) {
+        carrusel.addEventListener('mouseenter', pausarCarrusel);
+        carrusel.addEventListener('mouseleave', reanudarCarrusel);
+    }
+    
+    mostrarSlide(0);
+    iniciarCarruselAutomatico();
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') {
+        cambiarSlide(-1);
+    } else if (e.key === 'ArrowRight') {
+        cambiarSlide(1);
+    }
+});
+</script>
+{% endblock %}

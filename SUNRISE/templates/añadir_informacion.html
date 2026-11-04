@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    
+    h2 {
+        color: #07AB78;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .campo {
+        margin-bottom: 20px;
+    }
+    
+    .campo label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+    }
+    
+    .campo input,
+    .campo textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 1rem;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+    
+    .campo textarea {
+        resize: vertical;
+        min-height: 150px;
+    }
+    
+    .campo-fotos {
+        border: 2px dashed #07AB78;
+        padding: 20px;
+        border-radius: 8px;
+        background: #f8fdfb;
+    }
+    
+    .btn-submit {
+        background-color: #07AB78;
+        color: white;
+        padding: 15px 40px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+        transition: background 0.3s;
+    }
+    
+    .btn-submit:hover {
+        background-color: #069467;
+    }
+    
+    .volver {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .volver a {
+        color: #07AB78;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    
+    .info-text {
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    .preview-fotos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    .preview-item {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 2px solid #07AB78;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Añadir Información para {{ paciente.nombre }} {{ paciente.apellido }}</h2>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="campo">
+            <label for="titulo">Título de la información:</label>
+            <input type="text" id="titulo" name="titulo" required placeholder="Ej: Consulta del 15/10/2025 - Control mensual">
+        </div>
+        
+        <div class="campo">
+            <label for="descripcion">Descripción detallada:</label>
+            <textarea id="descripcion" name="descripcion" required placeholder="Describe los procedimientos realizados, observaciones, recomendaciones..."></textarea>
+        </div>
+        
+        <div class="campo campo-fotos">
+            <label for="fotos">Fotos (opcional):</label>
+            <input type="file" id="fotos" name="fotos" multiple accept="image/*">
+            <div class="info-text">Puedes seleccionar múltiples fotos</div>
+            <div class="preview-fotos" id="preview-container"></div>
+        </div>
+        
+        <button type="submit" class="btn-submit">Guardar Información</button>
+    </form>
+    
+    <div class="volver">
+    <a href="{% url 'paciente_detalle' paciente.id %}">← Volver</a>
+</div>
+</div>
+
+<script>
+document.getElementById('fotos').addEventListener('change', function(e) {
+    const previewContainer = document.getElementById('preview-container');
+    previewContainer.innerHTML = '';
+    
+    const files = e.target.files;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'preview-item';
+            previewContainer.appendChild(img);
+        }
+        
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

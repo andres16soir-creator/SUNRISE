@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .acciones-container {
+        max-width: 800px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 12px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    
+    h2 {
+        color: #07AB78;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .accion-item {
+        background: #f8fdfb;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border-left: 4px solid #07AB78;
+    }
+    
+    .accion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    
+    .accion-titulo {
+    color: #07AB78;
+    margin: 0;
+    flex: 1;
+    font-size: 1.2rem;
+    text-align: left; /* AGREGAR ESTA LÍNEA */
+}
+    
+    .accion-fecha {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .accion-descripcion {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+    text-align: left; /* AGREGAR ESTA LÍNEA */
+}
+    
+    .accion-acciones {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .btn-editar {
+        background: #3498db;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    
+    .btn-editar:hover {
+        background: #2980b9;
+    }
+    
+    .btn-galeria {
+        background: #9b59b6;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.3s;
+    }
+    
+    .btn-galeria:hover {
+        background: #8e44ad;
+    }
+    
+    .btn-eliminar {
+        background: #e74c3c;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: background 0.3s;
+    }
+    
+    .btn-eliminar:hover {
+        background: #c0392b;
+    }
+    
+    .btn-volver {
+        background: #07AB78;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        margin-top: 20px;
+        text-align: center;
+        transition: background 0.3s;
+    }
+    
+    .btn-volver:hover {
+        background: #069467;
+    }
+    
+    .sin-acciones {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 40px 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    /* Modal de confirmación */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+        background-color: white;
+        margin: 15% auto;
+        padding: 30px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        text-align: center;
+    }
+    
+    .modal-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 25px;
+    }
+    
+    .btn-confirmar {
+        background: #e74c3c;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    .btn-cancelar {
+        background: #95a5a6;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    .btn-confirmar:hover {
+        background: #c0392b;
+    }
+    
+    .btn-cancelar:hover {
+        background: #7f8c8d;
+    }
+    
+    .modal-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    
+    .modal-title {
+        color: #e74c3c;
+        margin-bottom: 10px;
+        font-size: 1.4rem;
+    }
+    
+    .modal-message {
+        color: #2c3e50;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="acciones-container">
+    <h2>ACCIONES DEL DIENTE #{{ diente_numero }}</h2>
+    
+    <div class="acciones-lista">
+        {% if acciones %}
+            {% for accion in acciones %}
+            <div class="accion-item">
+                <div class="accion-header">
+                    <h3 class="accion-titulo">{{ accion.titulo }}</h3>
+                    <div class="accion-fecha">{{ accion.fecha_creacion|date:"d/m/Y H:i" }}</div>
+                </div>
+                <div class="accion-descripcion">{{ accion.descripcion|linebreaks }}</div>
+                <div class="accion-acciones">
+                    <a href="{% url 'editar_accion_dental' accion.id %}" class="btn-editar">Editar</a>
+                    <a href="{% url 'galeria_accion_dental' accion.id %}" class="btn-galeria">
+                        <!-- REEMPLAZA ESTA RUTA CON TU ICONO -->
+                        <img src="{% static 'images/icon_galeria.png' %}" alt="Galería" width="16" height="16" onerror="this.style.display='none'">
+                        Galería
+                    </a>
+                    <button class="btn-eliminar" onclick="mostrarConfirmacion({{ accion.id }}, '{{ accion.titulo }}')">
+    <img src="{% static 'images/basurero.png' %}" alt="Eliminar" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 5px;">
+    Eliminar
+</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="sin-acciones">
+                <h3>No hay acciones registradas para este diente</h3>
+                <p>Haz clic en "Nueva Acción" para crear la primera</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div style="text-align: center;">
+        <a href="{% url 'odontograma' paciente.id %}" class="btn-volver">← Volver al Odontograma</a>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div id="modalConfirmacion" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon">
+    <img src="{% static 'images/advertencia.png' %}" alt="Advertencia" style="width: 40px; height: 40px;">
+</div>
+        <h3 class="modal-title">Confirmar Eliminación</h3>
+        <p class="modal-message" id="modalMessage">
+            ¿Estás seguro de que deseas eliminar la acción "<span id="accionTitulo"></span>"?
+        </p>
+        <p class="modal-message" style="color: #e74c3c; font-weight: bold;">
+            Esta acción no se puede deshacer.
+        </p>
+        <div class="modal-buttons">
+            <form id="formEliminar" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-confirmar">Sí, Eliminar</button>
+            </form>
+            <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let accionIdAEliminar = null;
+
+    function mostrarConfirmacion(accionId, accionTitulo) {
+        accionIdAEliminar = accionId;
+        document.getElementById('accionTitulo').textContent = accionTitulo;
+        document.getElementById('modalConfirmacion').style.display = 'block';
+        
+        // Actualizar el action del formulario
+        document.getElementById('formEliminar').action = "{% url 'eliminar_accion_dental' 0 %}".replace('0', accionId);
+    }
+
+    function cerrarModal() {
+        document.getElementById('modalConfirmacion').style.display = 'none';
+        accionIdAEliminar = null;
+    }
+
+    // Cerrar modal si se hace clic fuera del contenido
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalConfirmacion');
+        if (event.target === modal) {
+            cerrarModal();
+        }
+    }
+
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            cerrarModal();
+        }
+    });
+</script>
+{% endblock %}

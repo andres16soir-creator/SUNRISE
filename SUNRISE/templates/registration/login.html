@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUNRISE - Acceso Seguro</title>
+    <style>
+        /* Tus estilos actuales permanecen igual */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #07AB78 0%, #069467 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #07AB78, #3498db, #07AB78);
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+
+        .logo h1 {
+            color: #07AB78;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #07AB78;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(7, 171, 120, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, #07AB78 0%, #069467 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(7, 171, 120, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #ffe6e6;
+            color: #d63031;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #d63031;
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer-links a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-size: 1.2rem;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-password:hover {
+            color: #07AB78;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-container {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+            
+            .logo h1 {
+                font-size: 1.7rem;
+            }
+        }
+
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #07AB78;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <img src="{% static 'images/logo_sunrise.png' %}" alt="Logo SUNRISE" 
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDIyQzE3LjUyIDIyIDIyIDE3LjUyIDIyIDEyQzIyIDYuNDggMTcuNTIgMiAxMiAyQzYuNDggMiAyIDYuNDggMiAxMkMyIDE3LjUyIDYuNDggMjIgMTIgMjJaIiBmaWxsPSIjMDdBQjc4Ii8+CjxwYXRoIGQ9Ik0xMiAxN0MxNC43NiAxNyAxNyAxNC43NiAxNyAxMkMxNyA5LjI0IDE4Ljc2IDcgMTIgN0M5LjI0IDcgNyA5LjI0IDcgMTJDNyAxNC43NiA5LjI0IDE3IDEyIDE3WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTE1IDEyQzE1IDEzLjY2IDEzLjY2IDE1IDEyIDE1QzEwLjM0IDE1IDkgMTMuNjYgOSAxMkM5IDEwLjM0IDEwLjM0IDkgMTIgOUMxMy42NiA5IDE1IDEwLjM0IDE1IDEyWiIgZmlsbD0iIzA2OTQ2NyIvPgo8L3N2Zz4K'">
+            <h1>SUNRISE</h1>
+            <p>Consultorio Odontológico</p>
+        </div>
+
+        {% if form.errors %}
+        <div class="error-message">
+            <img src="{% static 'images/incorrecto.png' %}" alt="Error" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 5px;">
+            Usuario o contraseña incorrectos. Por favor, intente nuevamente.
+        </div>
+        {% endif %}
+
+        <form method="post" id="loginForm" autocomplete="off">
+            {% csrf_token %}
+            
+            <!-- Campo oculto para prevenir autocomplete -->
+            <input type="text" style="display:none;">
+            <input type="password" style="display:none;">
+            
+            <div class="form-group">
+                <label for="username">
+                    <img src="{% static 'images/usuario.png' %}" alt="Usuario" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 5px;">
+                    Usuario:
+                </label>
+                <input type="text" id="username" name="username" class="form-control" 
+                       placeholder="Ingrese su usuario" required readonly
+                       onfocus="this.removeAttribute('readonly');">
+            </div>
+
+            <div class="form-group password-toggle">
+                <label for="password">
+                    <img src="{% static 'images/candado.png' %}" alt="Contraseña" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 5px;">
+                    Contraseña:
+                </label>
+                <input type="password" id="password" name="password" class="form-control" 
+                       placeholder="Ingrese su contraseña" required readonly
+                       onfocus="this.removeAttribute('readonly');">
+                <button type="button" class="toggle-password" onclick="togglePassword()">
+                    <span class="eye-icon"></span>
+                </button>
+            </div>
+
+            <button type="submit" class="btn-login" id="submitBtn">
+                Ingresar al Sistema
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 10px; color: #666;">Verificando credenciales...</p>
+            </div>
+        </form>
+
+        <div class="footer-links">
+            <p style="color: #666; font-size: 0.8rem; margin-top: 15px;">
+                Sistema seguro - &copy; 2025 SUNRISE
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Técnica infalible para prevenir autocomplete
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Limpiar todos los campos
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            
+            // 2. Cambiar el tipo de los campos momentáneamente
+            setTimeout(function() {
+                const passwordField = document.getElementById('password');
+                const originalType = passwordField.type;
+                passwordField.type = 'text';
+                setTimeout(function() {
+                    passwordField.type = originalType;
+                }, 100);
+            }, 100);
+            
+            // 3. Agregar más campos ficticios
+            const fakeFields = `
+                <input type="text" name="prevent_autofill" style="display:none;" tabindex="-1">
+                <input type="password" name="password_fake" style="display:none;" tabindex="-1">
+                <input type="email" name="email" style="display:none;" tabindex="-1">
+            `;
+            document.getElementById('loginForm').insertAdjacentHTML('afterbegin', fakeFields);
+        });
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.querySelector('.eye-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.textContent = '🔒';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.textContent = '👁️';
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            
+            // Mostrar loading
+            submitBtn.style.display = 'none';
+            loading.style.display = 'block';
+            
+            // Validación básica
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                e.preventDefault();
+                submitBtn.style.display = 'block';
+                loading.style.display = 'none';
+                return false;
+            }
+        });
+
+        // Prevenir envío múltiple
+        let formSubmitted = false;
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            if (formSubmitted) {
+                e.preventDefault();
+                return;
+            }
+            formSubmitted = true;
+        });
+    </script>
+</body>
+</html>

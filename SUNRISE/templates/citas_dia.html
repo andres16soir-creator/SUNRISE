@@ -1,0 +1,520 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .dia-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .dia-header {
+        background: #007a57;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .dia-titulo {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    
+    .secciones {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+    
+    .seccion {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 16px rgba(0,0,0,0.10);
+    }
+    
+    .seccion-titulo {
+        color: #007a57;
+        border-bottom: 2px solid #007a57;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        font-size: 1.4rem;
+    }
+    
+    .btn-nueva-cita {
+        background-color: #007a57;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 20px;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-nueva-cita:hover {
+        background-color: #069467;
+    }
+    
+    .lista-citas {
+        margin-top: 20px;
+    }
+    
+    .cita-item {
+        background: #f8fdfb;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border-left: 4px solid #007a57;
+    }
+    
+    .cita-hora {
+        font-weight: bold;
+        color: #007a57;
+        margin-bottom: 5px;
+        font-size: 1.1rem;
+    }
+    
+    .cita-paciente {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .cita-dentista {
+        color: #666;
+        margin-bottom: 5px;
+    }
+    
+    .cita-motivo {
+        color: #555;
+        font-style: italic;
+        margin-bottom: 10px;
+        padding: 8px;
+        background: white;
+        border-radius: 4px;
+        border-left: 2px solid #3498db;
+    }
+    
+    .cita-acciones {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-ver-paciente {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background-color 0.3s;
+    }
+    
+    .btn-ver-paciente:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-editar-cita {
+        background-color: #f39c12;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background-color 0.3s;
+    }
+
+    .btn-editar-cita:hover {
+        background-color: #e67e22;
+    }
+
+    .btn-eliminar-cita {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background-color 0.3s;
+    }
+
+    .btn-eliminar-cita:hover {
+        background-color: #c0392b;
+    }
+
+    .sin-citas {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 40px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 2px dashed #ddd;
+    }
+    
+    .volver-calendario {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .volver-calendario a {
+        color: #007a57;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: 2px solid #007a57;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+    
+    .volver-calendario a:hover {
+        background-color: #007a57;
+        color: white;
+    }
+
+    .cita-duracion {
+        font-size: 0.9rem;
+        color: #888;
+        margin-bottom: 5px;
+    }
+
+    .estado-cita {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        margin-left: 10px;
+    }
+
+    .estado-programada {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .estado-completada {
+        background-color: #27ae60;
+        color: white;
+    }
+
+    .estado-cancelada {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .secciones {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .cita-acciones {
+            flex-direction: column;
+        }
+        
+        .btn-ver-paciente,
+        .btn-editar-cita,
+        .btn-eliminar-cita {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="dia-container">
+    <div class="dia-header">
+        <div class="dia-titulo">Citas del {{ fecha.day }} de 
+    {% if fecha.month == 1 %}Enero
+    {% elif fecha.month == 2 %}Febrero
+    {% elif fecha.month == 3 %}Marzo
+    {% elif fecha.month == 4 %}Abril
+    {% elif fecha.month == 5 %}Mayo
+    {% elif fecha.month == 6 %}Junio
+    {% elif fecha.month == 7 %}Julio
+    {% elif fecha.month == 8 %}Agosto
+    {% elif fecha.month == 9 %}Septiembre
+    {% elif fecha.month == 10 %}Octubre
+    {% elif fecha.month == 11 %}Noviembre
+    {% elif fecha.month == 12 %}Diciembre
+    {% endif %} 
+    de {{ fecha.year }}</div>
+        <div>Gestión de citas para este día</div>
+    </div>
+    
+    <div class="secciones">
+        <!-- Sección 1: Nueva Cita -->
+        <div class="seccion">
+            <h3 class="seccion-titulo">Agendar Nueva Cita</h3>
+            <a href="{% url 'nueva_cita' fecha.year fecha.month fecha.day %}" class="btn-nueva-cita">
+                + Nueva Cita
+            </a>
+            <p>Haz clic para agendar una nueva cita para este día con horario específico de inicio y fin.</p>
+            
+            <div style="background: #e8f5e8; padding: 15px; border-radius: 6px; margin-top: 15px;">
+    <h4 style="color: #007a57; margin-bottom: 10px;">
+        <img src="{% static 'images/menu4.png' %}" alt="Información" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;">
+        Información importante:
+    </h4>
+    <ul style="color: #333; margin: 0; padding-left: 20px;">
+        <li>Selecciona hora de inicio y fin</li>
+        <li>Elige entre Dr. Gustavo o Dra. Albandrea</li>
+        <li>El sistema verificará disponibilidad automáticamente</li>
+    </ul>
+</div>
+        </div>
+        
+        <!-- Sección 2: Citas Existentes -->
+        <div class="seccion">
+            <h3 class="seccion-titulo">Citas Programadas</h3>
+            <div class="lista-citas">
+                {% if citas %}
+                    {% for cita in citas %}
+                    <div class="cita-item">
+    <div class="cita-hora">
+        {{ cita.hora_inicio|time:"H:i" }} - {{ cita.hora_fin|time:"H:i" }}
+        <span class="estado-cita estado-{{ cita.estado }}">{{ cita.get_estado_display }}</span>
+    </div>
+    
+    <div class="cita-duracion">
+        Duración: <span class="duracion-text" data-inicio="{{ cita.hora_inicio|time:'H:i' }}" data-fin="{{ cita.hora_fin|time:'H:i' }}">Calculando...</span>
+    </div>
+    
+    <div class="cita-paciente">
+        <img src="{% static 'images/usuario.png' %}" alt="Paciente" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 5px;">
+        {{ cita.paciente.nombre }} {{ cita.paciente.apellido }}
+    </div>
+    <div class="cita-dentista">Dentista: {{ cita.dentista }}</div>
+    
+    {% if cita.motivo %}
+    <div class="cita-motivo">
+        <strong>Motivo:</strong> {{ cita.motivo }}
+    </div>
+    {% endif %}
+    
+    <div class="cita-acciones">
+        <a href="{% url 'paciente_detalle' cita.paciente.id %}" class="btn-ver-paciente">
+            Ver Paciente
+        </a>
+        <a href="{% url 'editar_cita' cita.id %}" class="btn-editar-cita">
+            Editar
+        </a>
+        <form method="post" action="{% url 'eliminar_cita' cita.id %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="button" class="btn-eliminar-cita" onclick="mostrarConfirmacionEliminarCita('{{ cita.paciente.nombre }} {{ cita.paciente.apellido }}', {{ cita.id }})">
+                <img src="{% static 'images/basurero.png' %}" alt="Eliminar" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 5px;">
+                Eliminar
+            </button>
+        </form>
+    </div>
+</div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div style="text-align: center; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <strong>Total de citas:</strong> {{ citas|length }}
+                    </div>
+                    
+                {% else %}
+                    <div class="sin-citas">
+    <div style="margin-bottom: 20px;">
+        <img src="{% static 'images/menu4.png' %}" alt="Calendario" style="width: 60px; height: 60px;">
+    </div>
+    <h3>No hay citas programadas para este día</h3>
+    <p>Puedes agendar una nueva cita haciendo clic en el botón "Nueva Cita"</p>
+</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="volver-calendario">
+        <a href="{% url 'citas' %}">← Volver al Calendario</a>
+    </div>
+</div>
+
+<script>
+// Función para calcular duración entre horas
+function calcularDuracion(horaInicio, horaFin) {
+    const inicio = new Date(`2000-01-01T${horaInicio}`);
+    const fin = new Date(`2000-01-01T${horaFin}`);
+    const duracionMs = fin - inicio;
+    const duracionMinutos = Math.floor(duracionMs / (1000 * 60));
+    
+    if (duracionMinutos < 60) {
+        return `${duracionMinutos} minutos`;
+    } else {
+        const horas = Math.floor(duracionMinutos / 60);
+        const minutos = duracionMinutos % 60;
+        return minutos > 0 ? `${horas}h ${minutos}min` : `${horas} horas`;
+    }
+}
+
+// FUNCIÓN PARA MENSAJE DE CONFIRMACIÓN ELEGANTE
+function mostrarConfirmacionEliminarCita(nombrePaciente, citaId) {
+    // Crear overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    // Crear modal de confirmación
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transform: scale(0.9);
+        animation: scaleIn 0.3s ease forwards;
+        overflow: hidden;
+    `;
+    
+    modal.innerHTML = `
+        <div style="background: #3498db; padding: 20px; text-align: center;">
+            <h3 style="margin: 0; color: white; font-size: 1.3rem; font-weight: bold;">
+                Eliminar Cita
+            </h3>
+        </div>
+        <div style="padding: 25px; text-align: center;">
+            <div style="font-size: 1.1rem; color: #333; line-height: 1.5; margin-bottom: 25px;">
+                ¿Estás seguro de que quieres eliminar la cita de <strong>${nombrePaciente}</strong>?
+                <br><br>
+                <span style="color: #e74c3c; font-size: 0.9rem;">Esta acción no se puede deshacer.</span>
+            </div>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button id="btnCancelarConfirm" style="
+                    padding: 12px 25px;
+                    background: #95a5a6;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 1rem;
+                    min-width: 100px;
+                " onmouseover="this.style.background='#7f8c8d'" onmouseout="this.style.background='#95a5a6'">
+                    Cancelar
+                </button>
+                <button id="btnAceptarConfirm" style="
+                    padding: 12px 25px;
+                    background: #e74c3c;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 1rem;
+                    min-width: 100px;
+                " onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    
+    // Eventos de los botones
+    document.getElementById('btnAceptarConfirm').addEventListener('click', function() {
+        // Enviar formulario de eliminación
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/citas/eliminar/${citaId}/`;
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    });
+    
+    document.getElementById('btnCancelarConfirm').addEventListener('click', function() {
+        overlay.remove();
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Cerrar al hacer clic fuera del modal
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.remove();
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+// Agregar animaciones CSS
+if (!document.querySelector('#animaciones-custom')) {
+    const style = document.createElement('style');
+    style.id = 'animaciones-custom';
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Función para calcular todas las duraciones al cargar la página
+function calcularTodasDuraciones() {
+    const elementosDuracion = document.querySelectorAll('.duracion-text');
+    
+    elementosDuracion.forEach(elemento => {
+        const horaInicio = elemento.getAttribute('data-inicio');
+        const horaFin = elemento.getAttribute('data-fin');
+        
+        if (horaInicio && horaFin) {
+            const duracion = calcularDuracion(horaInicio, horaFin);
+            elemento.textContent = duracion;
+        }
+    });
+}
+
+// Calcular duraciones al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    calcularTodasDuraciones();
+});
+</script>
+{% endblock %}

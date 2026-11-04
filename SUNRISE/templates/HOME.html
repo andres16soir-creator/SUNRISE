@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="welcome-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="welcome-title">
+                Bienvenido al Sistema 
+                <span class="sunrise-text">SUNRISE :)</span>
+            </h1>
+            <p class="welcome-subtitle">¡Ponle un amanecer a tu sonrisa!</p>
+        </div>
+        
+        <!-- Imagen decorativa -->
+        <div class="hero-image">
+            <div class="dental-icon">
+                <img src="{% static 'images/menu1.png' %}" alt="Diente" style="width: 100px; height: 100px;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div class="quick-actions">
+        <h2 class="section-title">Acciones Rápidas</h2>
+        <div class="action-buttons">
+            <a href="{% url 'nuevo_paciente' %}" class="action-btn primary-btn">
+                <span class="btn-icon">
+                    <img src="{% static 'images/menu3.png' %}" alt="Agregar" style="width: 60px; height: 60px;">
+                </span>
+                <span class="btn-text">Nuevo Paciente</span>
+                <span class="btn-description">Registrar nuevo paciente</span>
+            </a>
+            
+            <a href="{% url 'pacientes' %}" class="action-btn tertiary-btn">
+                <span class="btn-icon">
+                    <img src="{% static 'images/menu2.png' %}" alt="Pacientes" style="width: 60px; height: 60px;">
+                </span>
+                <span class="btn-text">Lista de Pacientes</span>
+                <span class="btn-description">Ver todos los pacientes</span>
+            </a>
+
+            <a href="{% url 'citas' %}" class="action-btn secondary-btn">
+                <span class="btn-icon">
+                    <img src="{% static 'images/menu4.png' %}" alt="Citas" style="width: 60px; height: 60px;">
+                </span>
+                <span class="btn-text">Gestionar Citas</span>
+                <span class="btn-description">Ver y programar citas</span>
+            </a>
+            
+            <a href="{% url 'tratamientos' %}" class="action-btn quaternary-btn">
+                <span class="btn-icon">
+                    <img src="{% static 'images/menu5.png' %}" alt="Tratamientos" style="width: 60px; height: 60px;">
+                </span>
+                <span class="btn-text">Tratamientos</span>
+                <span class="btn-description">Gestionar tratamientos</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .welcome-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #07AB78 0%, #069467 100%);
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 40px;
+        color: white;
+        box-shadow: 0 10px 300px rgba(7, 171, 120, 0.3);
+    }
+
+    .hero-content {
+        flex: 1;
+    }
+
+    .welcome-title {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+
+    .sunrise-text {
+        color: white;
+    }
+
+    .welcome-subtitle {
+        font-size: 1.4rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+
+    /* Hero Image */
+    .hero-image {
+        flex: 0 0 200px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dental-icon {
+        font-size: 0rem;
+        margin-bottom: 0px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        margin-bottom: 0px;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2rem;
+        color: #07AB78;
+        margin-bottom: 30px;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px 20px;
+        text-decoration: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .primary-btn {
+        background: linear-gradient(135deg, #07AB78, #069467);
+        color: white;
+    }
+
+    .secondary-btn {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+    }
+
+    .tertiary-btn {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+    }
+
+    .quaternary-btn {
+        background: linear-gradient(135deg, #e67e22, #d35400);
+        color: white;
+    }
+
+    .btn-icon {
+        font-size: 2.5rem;
+        margin-bottom: 5px;
+    }
+
+    .btn-text {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .btn-description {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    /* Animations */
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-section {
+            flex-direction: column;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+        }
+
+        .hero-image {
+            margin-top: 30px;
+        }
+
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

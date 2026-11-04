@@ -1,0 +1,212 @@
+<!-- templates/instalar.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Instalar Sistema Dental</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .install-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .code-input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+            text-align: left;
+        }
+        
+        .btn-install {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn-install:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-install:active {
+            transform: translateY(0);
+        }
+        
+        .contact-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .contact-info strong {
+            color: #333;
+        }
+        
+        .steps {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="install-container">
+        <div class="logo">🦷</div>
+        <h1>Instalar Sistema Dental</h1>
+        <p class="subtitle">
+            Ingresa el código de instalación proporcionado por el desarrollador
+        </p>
+        
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <span>Contacta al desarrollador para obtener el código</span>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <span>Ingresa el código en el campo de abajo</span>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>El sistema se activará permanentemente</span>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="codigo">Código de Instalación:</label>
+                <input 
+                    type="password" 
+                    id="codigo" 
+                    name="codigo" 
+                    class="code-input"
+                    placeholder="XXXX-XXXX-XXXX"
+                    required
+                    autofocus
+                >
+            </div>
+            
+            <button type="submit" class="btn-install">
+                🚀 Activar Sistema
+            </button>
+        </form>
+        
+        <div class="contact-info">
+            <p><strong>¿No tienes el código?</strong></p>
+            <p>Contacta al soporte técnico:</p>
+            <p>📞 Teléfono: <strong>+591 69764651</strong></p>
+            <p>✉️ Email: <strong>andres16soir@gmail.com.com</strong></p>
+        </div>
+    </div>
+</body>
+</html>

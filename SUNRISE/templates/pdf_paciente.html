@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial Clínico - {{ paciente.nombre }} {{ paciente.apellido }}</title>
+    <style>
+        /* Estilos específicos para PDF */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007a57;
+            padding-bottom: 10px;
+        }
+        
+        .header h1 {
+            color: #007a57;
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header h2 {
+            color: #666;
+            margin: 5px 0;
+            font-size: 18px;
+            font-weight: normal;
+        }
+        
+        .fecha-generacion {
+            text-align: right;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .seccion {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .seccion-titulo {
+            color: #007a57;
+            border-bottom: 2px solid #007a57;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .dato {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .dato span {
+            font-weight: bold;
+            color: #000;
+            display: inline-block;
+            min-width: 200px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #007a57;
+        }
+        
+        .info-box h4 {
+            color: #007a57;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        
+        .info-descripcion {
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+        
+        .fecha-info {
+            color: #666;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .fotos-seccion {
+            margin-top: 15px;
+            page-break-inside: avoid;
+        }
+        
+        .fotos-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .foto-item {
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .foto-item img {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+        }
+        
+        .foto-descripcion {
+            font-size: 10px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .sin-informacion {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        
+        /* Evitar saltos de página dentro de secciones importantes */
+        .no-break {
+            page-break-inside: avoid;
+        }
+        
+        /* Estilo para valores destacados */
+        .valor-si {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .valor-no {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .valor-pendiente {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        
+        /* Estilos para la sección de firma */
+        .firma-container {
+            margin-top: 50px;
+            page-break-inside: avoid;
+            border-top: 2px dashed #007a57;
+            padding-top: 30px;
+        }
+        
+        .firma-linea {
+            border-bottom: 2px solid #333;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        .sello-box {
+            border: 2px dashed #999;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .nota-legal {
+            margin-top: 30px;
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        
+        /* ========== ESTILOS NUEVOS PARA ODONTOGRAMA ========== */
+        .odontograma-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 5px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            page-break-inside: avoid;
+        }
+        
+        .tooth-container-pdf {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .tooth-pdf {
+            width: 25px;
+            height: 25px;
+            background: white;
+            border: 2px solid #007a57;
+            border-radius: 4px;
+            margin: 3px 0;
+        }
+        
+        .tooth-label-pdf {
+            font-size: 9px;
+            font-weight: bold;
+            color: #007a57;
+        }
+        
+        /* ========== ESTILOS NUEVOS PARA ACCIONES DENTALES ========== */
+        .accion-item-pdf {
+            background: #f8fdfb;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            border-left: 4px solid #007a57;
+        }
+        
+        .accion-header-pdf {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        
+        .accion-titulo-pdf {
+            color: #007a57;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .accion-fecha-pdf {
+            color: #666;
+            font-size: 10px;
+        }
+        
+        .accion-descripcion-pdf {
+            color: #333;
+            font-size: 11px;
+            line-height: 1.4;
+            margin-top: 6px;
+        }
+        
+        /* ========== ESTILOS NUEVOS PARA GALERÍA ========== */
+        .galeria-comparativa {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            page-break-inside: avoid;
+        }
+        
+        .galeria-lado {
+            flex: 1;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        
+        .galeria-lado.antes {
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .galeria-lado.despues {
+            border-left: 4px solid #27ae60;
+        }
+        
+        .galeria-titulo {
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .galeria-titulo.antes { color: #e74c3c; }
+        .galeria-titulo.despues { color: #27ae60; }
+        
+        .foto-pdf {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        .foto-pdf img {
+            max-width: 100%;
+            max-height: 120px;
+            object-fit: contain;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .foto-pdf small {
+            display: block;
+            color: #666;
+            font-size: 8px;
+            margin-top: 3px;
+        }
+        
+        @page {
+            size: A4;
+            margin: 2cm;
+            
+            @top-center {
+                content: "Historial Clínico";
+                font-size: 9px;
+                color: #666;
+            }
+            
+            @bottom-center {
+                content: "Página " counter(page) " de " counter(pages);
+                font-size: 9px;
+                color: #666;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>HISTORIAL CLÍNICO</h1>
+        <h2>{{ paciente.nombre }} {{ paciente.apellido }}</h2>
+    </div>
+    
+    <!-- DATOS PERSONALES -->
+    <div class="seccion no-break">
+        <div class="seccion-titulo">DATOS PERSONALES</div>
+        <div class="dato"><span>Nombres:</span> {{ paciente.nombre }}</div>
+        <div class="dato"><span>Apellidos:</span> {{ paciente.apellido }}</div>
+        <div class="dato"><span>CI:</span> {{ paciente.ci|default:"No especificado" }}</div>
+        <div class="dato"><span>Fecha de nacimiento:</span> {{ fecha_nacimiento_espanol|default:"No especificada" }}</div>
+        <div class="dato"><span>Edad:</span> {{ edad|default:"No especificada" }}{% if edad %} años{% endif %}</div>
+        <div class="dato"><span>Género:</span> {{ paciente.get_genero_display|default:"No especificado" }}</div>
+        <div class="dato"><span>Ocupación:</span> {{ paciente.ocupacion|default:"No registrado" }}</div>
+        <div class="dato"><span>Teléfono:</span> {{ paciente.telefono|default:"No registrado" }}</div>
+        <div class="dato"><span>Fecha de registro:</span> {{ paciente.fecha_creacion|date:"d/m/Y H:i" }}</div>
+    </div>
+    
+    <!-- HISTORIAL CLÍNICO -->
+    <div class="seccion no-break">
+        <div class="seccion-titulo">HISTORIAL CLÍNICO</div>
+        <div class="dato"><span>Motivo de consulta:</span> {{ paciente.motivo_consulta|default:"No registrado" }}</div>
+        <div class="dato"><span>Enfermedad actual:</span> {{ paciente.enfermedad_actual|default:"No registrado" }}</div>
+        <div class="dato"><span>Antecedentes familiares patológicos:</span> {{ paciente.antecedentes_familiares_patologicos|default:"No registrado" }}</div>
+    </div>
+    
+    <!-- ANTECEDENTES PERSONALES PATOLÓGICOS -->
+    <div class="seccion no-break">
+        <div class="seccion-titulo">ANTECEDENTES PERSONALES PATOLÓGICOS</div>
+        <div class="grid-2">
+            <div class="dato"><span>Anemia:</span> {{ paciente.get_anemia_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Cardiopatías:</span> {{ paciente.get_cardiopatias_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Diabetes:</span> {{ paciente.get_diabetes_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Enf. Gástricas:</span> {{ paciente.get_enf_gastricas_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Epilepsia:</span> {{ paciente.get_epilepsia_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Hipertensión:</span> {{ paciente.get_hipertencion_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>VIH:</span> {{ paciente.get_vih_display|default:"Pendiente" }}</div>
+        </div>
+        {% if paciente.observaciones_patologicos %}
+        <div class="dato"><span>Observaciones:</span> {{ paciente.observaciones_patologicos }}</div>
+        {% endif %}
+    </div>
+    
+    <!-- PREGUNTAS MÉDICAS -->
+    <div class="seccion no-break">
+        <div class="seccion-titulo">PREGUNTAS MÉDICAS</div>
+        
+        <div class="info-box">
+            <h4>Tratamiento médico actual</h4>
+            <div class="dato"><span>Respuesta:</span> {{ paciente.get_tratamiento_medico_actual_display }}</div>
+            {% if paciente.tratamiento_medico_desc %}
+            <div class="dato"><span>Descripción:</span> {{ paciente.tratamiento_medico_desc }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box">
+            <h4>Toma medicamentos</h4>
+            <div class="dato"><span>Respuesta:</span> {{ paciente.get_toma_medicamentos_display }}</div>
+            {% if paciente.medicamentos_desc %}
+            <div class="dato"><span>Descripción:</span> {{ paciente.medicamentos_desc }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box">
+            <h4>Alergias</h4>
+            <div class="dato"><span>Respuesta:</span> {{ paciente.get_alergias_display }}</div>
+            {% if paciente.alergias_desc %}
+            <div class="dato"><span>Descripción:</span> {{ paciente.alergias_desc }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box">
+            <h4>Intervención quirúrgica</h4>
+            <div class="dato"><span>Respuesta:</span> {{ paciente.get_intervencion_quirurgica_display }}</div>
+            {% if paciente.intervencion_quirurgica_desc %}
+            <div class="dato"><span>Descripción:</span> {{ paciente.intervencion_quirurgica_desc }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box">
+            <h4>Reacción a anestesia</h4>
+            <div class="dato"><span>Respuesta:</span> {{ paciente.get_reaccion_anestecia_display }}</div>
+            {% if paciente.reaccion_anestecia_desc %}
+            <div class="dato"><span>Descripción:</span> {{ paciente.reaccion_anestecia_desc }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box">
+            <h4>Hemorragia post-exodoncia</h4>
+            <div class="dato"><span>Respuesta:</span> {{ paciente.get_hemorragia_exodoncia_display }}</div>
+            {% if paciente.hemorragia_exodoncia_desc %}
+            <div class="dato"><span>Descripción:</span> {{ paciente.hemorragia_exodoncia_desc }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box">
+            <h4>Alteraciones en cicatrización</h4>
+            <div class="dato"><span>Respuesta:</span> {{ paciente.get_alteraciones_cicatrizacion_display }}</div>
+            {% if paciente.alteraciones_cicatrizacion_desc %}
+            <div class="dato"><span>Descripción:</span> {{ paciente.alteraciones_cicatrizacion_desc }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box">
+            <h4>Embarazada</h4>
+            <div class="dato"><span>Respuesta:</span> {{ paciente.get_embarazada_display }}</div>
+            {% if paciente.embarazada_desc %}
+            <div class="dato"><span>Descripción:</span> {{ paciente.embarazada_desc }}</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- ANTECEDENTES NO PATOLÓGICOS -->
+    <div class="seccion no-break">
+        <div class="seccion-titulo">ANTECEDENTES NO PATOLÓGICOS</div>
+        <div class="grid-3">
+            <div class="dato"><span>Fuma:</span> {{ paciente.get_fuma_display }}</div>
+            <div class="dato"><span>Bebe:</span> {{ paciente.get_bebe_display }}</div>
+            <div class="dato"><span>Respiración bucal:</span> {{ paciente.get_respiracion_bucal_display }}</div>
+            <div class="dato"><span>Queilofagia:</span> {{ paciente.get_queilofagia_display }}</div>
+            <div class="dato"><span>Onicofagia:</span> {{ paciente.get_onicofagia_display }}</div>
+            <div class="dato"><span>Bruxismo:</span> {{ paciente.get_bruxismo_display }}</div>
+            <div class="dato"><span>Mastica coca:</span> {{ paciente.get_mastica_coca_display }}</div>
+            <div class="dato"><span>Mastica chicle:</span> {{ paciente.get_mastica_chicle_display }}</div>
+            <div class="dato"><span>Mordisqueo objetos:</span> {{ paciente.get_mordisqueo_objetos_display }}</div>
+        </div>
+    </div>
+    
+    <!-- MENOR DE EDAD -->
+    <div class="seccion no-break">
+        <div class="seccion-titulo">SI ES MENOR DE EDAD</div>
+        <div class="grid-3">
+            <div class="dato"><span>Uso biberón:</span> {{ paciente.get_uso_biberon_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Uso chupón:</span> {{ paciente.get_uso_chupon_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Succión de dedo:</span> {{ paciente.get_succion_dedo_display|default:"Pendiente" }}</div>
+        </div>
+    </div>
+    
+    <!-- HIGIENE DENTO-BUCAL -->
+    <div class="seccion no-break">
+        <div class="seccion-titulo">VALORACIÓN DE HIGIENE DENTO-BUCAL</div>
+        <div class="grid-2">
+            <div class="dato"><span>Higiene Bucal:</span> {{ paciente.get_higiene_bucal_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Frecuencia de cepillado:</span> {{ paciente.frecuencia_cepillado|default:"No registrado" }}</div>
+            <div class="dato"><span>Cambio de cepillo:</span> {{ paciente.cambio_cepillo|default:"No registrado" }}</div>
+            <div class="dato"><span>Suburra:</span> {{ paciente.get_suburra_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Materia Alba:</span> {{ paciente.get_materia_alba_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Placa Bacteriana:</span> {{ paciente.get_placa_bacteriana_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Tártaro:</span> {{ paciente.get_tartaro_display|default:"Pendiente" }}</div>
+            <div class="dato"><span>Halitosis:</span> {{ paciente.get_halitosis_display|default:"Pendiente" }}</div>
+        </div>
+    </div>
+    
+    <!-- =========================================== -->
+    <!-- NUEVA SECCIÓN: ODONTOGRAMA -->
+    <!-- =========================================== -->
+  
+
+    
+    <!-- =========================================== -->
+    <!-- NUEVA SECCIÓN: ACCIONES DENTALES -->
+    <!-- =========================================== -->
+    {% if paciente.acciones_dentales.all %}
+    <div class="seccion">
+        <div class="seccion-titulo">ACCIONES DENTALES REALIZADAS</div>
+        
+        {% regroup paciente.acciones_dentales.all by diente_numero as acciones_por_diente %}
+        
+        {% for grupo in acciones_por_diente %}
+        <div class="accion-item-pdf">
+            <div class="accion-header-pdf">
+                <span class="accion-titulo-pdf">DIENTE #{{ grupo.grouper }}</span>
+            </div>
+            
+            {% for accion in grupo.list %}
+            <div style="margin-top: 8px; padding-left: 8px; border-left: 2px solid #007a57;">
+                <div class="accion-header-pdf">
+                    <span style="font-weight: bold;">{{ accion.titulo }}</span>
+                    <span class="accion-fecha-pdf">{{ accion.fecha_creacion|date:"d/m/Y" }}</span>
+                </div>
+                <div class="accion-descripcion-pdf">{{ accion.descripcion|truncatechars:200 }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- =========================================== -->
+    <!-- NUEVA SECCIÓN: GALERÍA ANTES/DESPUÉS -->
+    <!-- =========================================== -->
+    {% if paciente.acciones_dentales.all %}
+        {% for accion in paciente.acciones_dentales.all %}
+            {% if accion.fotos_antes.all or accion.fotos_despues.all %}
+            <div class="seccion no-break">
+                <div class="seccion-titulo">REGISTRO FOTOGRÁFICO - DIENTE #{{ accion.diente_numero }}</div>
+                <div style="margin-bottom: 8px; font-size: 11px; color: #007a57;">
+                    {{ accion.titulo }} - {{ accion.fecha_creacion|date:"d/m/Y" }}
+                </div>
+                
+                <div class="galeria-comparativa">
+                    <!-- Fotos ANTES -->
+                    <div class="galeria-lado antes">
+                        <div class="galeria-titulo antes">ANTES</div>
+                        {% if accion.fotos_antes.all %}
+                            {% for foto in accion.fotos_antes.all %}
+                            <div class="foto-pdf">
+                                <img src="{{ foto.imagen.url }}" alt="Antes">
+                                {% if foto.descripcion %}
+                                <small>{{ foto.descripcion }}</small>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="foto-pdf">Sin fotos</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Fotos DESPUÉS -->
+                    <div class="galeria-lado despues">
+                        <div class="galeria-titulo despues">DESPUÉS</div>
+                        {% if accion.fotos_despues.all %}
+                            {% for foto in accion.fotos_despues.all %}
+                            <div class="foto-pdf">
+                                <img src="{{ foto.imagen.url }}" alt="Después">
+                                {% if foto.descripcion %}
+                                <small>{{ foto.descripcion }}</small>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="foto-pdf">Sin fotos</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    
+    <!-- INFORMACIÓN ADICIONAL CON FOTOS -->
+    {% if paciente.informacion_adicional.all %}
+    <div class="seccion">
+        <div class="seccion-titulo">INFORMACIÓN ADICIONAL DE CONSULTAS</div>
+        {% for info in paciente.informacion_adicional.all %}
+        <div class="info-box no-break">
+            <h4>{{ info.titulo }}</h4>
+            <div class="info-descripcion">{{ info.descripcion|linebreaks }}</div>
+            <div class="fecha-info">Fecha: {{ info.fecha_creacion|date:"d/m/Y H:i" }}</div>
+            
+            {% if info.fotos.all %}
+            <div class="fotos-seccion">
+                <h5 style="margin: 10px 0 5px 0; color: #007a57;">Fotos adjuntas:</h5>
+                <div class="fotos-grid">
+                    {% for foto in info.fotos.all %}
+                    <div class="foto-item">
+                        <img src="{{ foto.imagen.url }}" alt="Foto">
+                        {% if foto.descripcion %}
+                        <div class="foto-descripcion">{{ foto.descripcion }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- =========================================== -->
+    <!-- SECCIÓN DE FIRMA DEL DOCTOR -->
+    <!-- =========================================== -->
+    <div class="firma-container no-break">
+        <!-- Espacio para firma -->
+        <div style="margin-top: 60px; margin-bottom: 40px; text-align: center;">
+            <div class="firma-linea" style="width: 300px; margin: 0 auto;"></div>
+            <div style="text-align: center; font-size: 12px; color: #666; margin-top: 5px;">Firma del Doctor(a)</div>
+        </div>
+        
+        <div style="margin-top: 20px; margin-bottom: 40px;">
+            <div class="dato"><span>Nombre del Doctor(a):</span> Dra. Albandrea Terrazas Ibañez</div>
+            <div class="dato"><span>Especialidad:</span> Odontología General</div>
+            <div class="dato"><span>Fecha de atención:</span> ___/___/____</div>
+        </div>
+        
+        <!-- Nota legal -->
+        <div class="nota-legal">
+            |Documento de registro clínico oficial con valor legal generado por el sistema clinico SUNRISE|
+        </div>
+    </div>
+    
+    <div class="footer">
+        Documento generado desde el Sistema de Historial Clínico Dental
+    </div>
+</body>
+</html>
